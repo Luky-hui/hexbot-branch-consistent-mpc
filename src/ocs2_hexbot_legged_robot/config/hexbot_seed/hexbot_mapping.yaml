@@ -1,0 +1,68 @@
+robot_name: hexbot
+urdf_path: /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_description_ros2/urdf/hexbot_isaac_rooted.urdf
+root_link: base_link
+
+leg_order:
+  - RR
+  - RM
+  - RF
+  - LR
+  - LM
+  - LF
+
+contact_names_3dof:
+  - foot_RR
+  - foot_RM
+  - foot_RF
+  - foot_LR
+  - foot_LM
+  - foot_LF
+
+joint_names:
+  - coxa_joint_RR
+  - femur_joint_RR
+  - tarsus_joint_RR
+  - coxa_joint_RM
+  - femur_joint_RM
+  - tarsus_joint_RM
+  - coxa_joint_RF
+  - femur_joint_RF
+  - tarsus_joint_RF
+  - coxa_joint_LR
+  - femur_joint_LR
+  - tarsus_joint_LR
+  - coxa_joint_LM
+  - femur_joint_LM
+  - tarsus_joint_LM
+  - coxa_joint_LF
+  - femur_joint_LF
+  - tarsus_joint_LF
+
+default_joint_state:
+  - 0.0010
+  - -0.1308
+  - 0.1414
+  - -0.0017
+  - -0.1672
+  - 0.1817
+  - -0.0032
+  - -0.1990
+  - 0.2159
+  - 0.0035
+  - 0.1043
+  - -0.1188
+  - 0.0020
+  - 0.1362
+  - -0.1551
+  - -0.0003
+  - 0.1726
+  - -0.1948
+
+estimated_com_height_m: 0.126288
+target_displacement_velocity_mps: 0.15
+target_rotation_velocity_rps: 0.60
+
+notes:
+  - 该文件是 Hexbot 六足 OCS2 迁移的种子映射，不是最终控制器参数真值。
+  - 当前顺序与恢复工程中的 reference.info/task.info 保持一致。
+  - 上游 ocs2_legged_robot 仍有四足假设，编译和运行前还需要继续做六足泛化。

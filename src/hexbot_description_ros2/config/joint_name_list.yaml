@@ -1,0 +1,101 @@
+source_of_truth: "hexbot_description_ros2/urdf/hexbot_isaac_rooted.urdf"
+robot_name: hexbot
+root_link: base_link
+actuated_joint_count: 18
+sensor_links:
+  - laser_link
+  - imu_link
+  - camera_link
+  - camera_rgb_optical_frame
+joint_names:
+  - coxa_joint_RR
+  - femur_joint_RR
+  - tarsus_joint_RR
+  - coxa_joint_RM
+  - femur_joint_RM
+  - tarsus_joint_RM
+  - coxa_joint_RF
+  - femur_joint_RF
+  - tarsus_joint_RF
+  - coxa_joint_LR
+  - femur_joint_LR
+  - tarsus_joint_LR
+  - coxa_joint_LM
+  - femur_joint_LM
+  - tarsus_joint_LM
+  - coxa_joint_LF
+  - femur_joint_LF
+  - tarsus_joint_LF
+legs:
+  RR:
+    mount_link: leg_center_RR
+    link_chain:
+      - leg_center_RR
+      - coxa_RR
+      - femur_RR
+      - tarsus_RR
+      - foot_RR
+    actuated_joints:
+      - coxa_joint_RR
+      - femur_joint_RR
+      - tarsus_joint_RR
+  RM:
+    mount_link: leg_center_RM
+    link_chain:
+      - leg_center_RM
+      - coxa_RM
+      - femur_RM
+      - tarsus_RM
+      - foot_RM
+    actuated_joints:
+      - coxa_joint_RM
+      - femur_joint_RM
+      - tarsus_joint_RM
+  RF:
+    mount_link: leg_center_RF
+    link_chain:
+      - leg_center_RF
+      - coxa_RF
+      - femur_RF
+      - tarsus_RF
+      - foot_RF
+    actuated_joints:
+      - coxa_joint_RF
+      - femur_joint_RF
+      - tarsus_joint_RF
+  LR:
+    mount_link: leg_center_LR
+    link_chain:
+      - leg_center_LR
+      - coxa_LR
+      - femur_LR
+      - tarsus_LR
+      - foot_LR
+    actuated_joints:
+      - coxa_joint_LR
+      - femur_joint_LR
+      - tarsus_joint_LR
+  LM:
+    mount_link: leg_center_LM
+    link_chain:
+      - leg_center_LM
+      - coxa_LM
+      - femur_LM
+      - tarsus_LM
+      - foot_LM
+    actuated_joints:
+      - coxa_joint_LM
+      - femur_joint_LM
+      - tarsus_joint_LM
+  LF:
+    mount_link: leg_center_LF
+    link_chain:
+      - leg_center_LF
+      - coxa_LF
+      - femur_LF
+      - tarsus_LF
+      - foot_LF
+    actuated_joints:
+      - coxa_joint_LF
+      - femur_joint_LF
+      - tarsus_joint_LF

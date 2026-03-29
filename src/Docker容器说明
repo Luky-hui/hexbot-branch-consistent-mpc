@@ -1,0 +1,197 @@
+收到容器环境后，当前工程的目标不是手动逐个点名补 OCS2 包，而是由 Jazzy 容器把 OCS2 主依赖和 Hexbot 六足派生包稳定编起来。
+
+当前主线原则：
+1. 宿主机继续保留 Humble 运行链，但宿主机构建必须在 `~/ros2_ws/src/ocs2_hexbot_ws` 下执行。
+2. Jazzy 容器负责 OCS2 及其依赖编译。
+3. `hexbot_locomotion_mpc` 负责宿主机 ROS2 话题桥接。
+4. `ocs2_hexbot_legged_robot` / `ocs2_hexbot_legged_robot_ros` 负责六足 MPC 主体。
+5. Humble 与 Jazzy 不再共用同一套 `build/install/log` 目录，避免 root 与宿主机用户产物互相污染。
+
+**一、环境基线**
+
+- 宿主机：Ubuntu 22.04 + ROS 2 Humble
+- 容器：Ubuntu 24.04 + ROS 2 Jazzy
+- 工作区根目录：`/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws`
+- 源码目录：`/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src`
+
+补充说明：
+- 容器里的 OCS2 依赖宿主机持续提供 `/hexbot_mpc/input/joint_states` 与 `/hexbot_mpc/input/odom`
+- 因此不要把“Isaac Sim 进程开着”误判成“宿主机运行态 ready”
+- 2026-03-27 最近一次宿主机审计里，Isaac 进程存在，但 `/clock /joint_states /odom` 全空；这时继续查容器只会误导排障方向
+
+**二、安全启动容器**
+
+不要把挂载目录里的源码 `mv` 到容器内部的非挂载目录。容器如果带 `--rm`，退出后非挂载路径内容会被直接销毁。
+
+标准启动命令：
+```bash
+sudo docker run -it --rm \
+  --net=host \
+  --ipc=host \
+  -v /home/u-zhuang/ros2_ws:/home/u-zhuang/ros2_ws \
+  osrf/ros:jazzy-desktop \
+  bash
+```
+
+**三、容器内初始化**
+
+进入容器后先执行：
+```bash
+bash /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/container_setup_env.sh
+```
+
+等价手动命令：
+```bash
+apt update && apt install -y \
+  ros-jazzy-pinocchio \
+  ros-jazzy-hpp-fcl \
+  ros-jazzy-eigenpy \
+  liboctomap-dev \
+  python3-colcon-common-extensions
+
+source /opt/ros/jazzy/setup.bash
+```
+
+**四、正确的构建方式**
+
+不要再手写一串不完整的 `--packages-select`。上一轮失败的直接原因是工作区里根本看不到 `ocs2_core` 等上游包。
+
+标准方式：
+```bash
+bash /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/container_build_hexbot_stack.sh
+```
+
+该脚本会先做两件事：
+- 自动把 `.tmp_upstream/ocs2_ros2/ocs2-ros2` 挂到工作区 `src/ocs2`
+- 如果缺少 `ocs2_robotic_assets`，自动 clone 到 `.tmp_upstream/ocs2_ros2/ocs2-ros2/ocs2_robotic_assets`
+- 如果软链接不可用，自动退回为复制
+
+之后等价于：
+```bash
+source /opt/ros/jazzy/setup.bash
+cd /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws
+
+colcon build \
+  --symlink-install \
+  --packages-up-to ocs2_hexbot_legged_robot_ros hexbot_locomotion_mpc \
+  --cmake-args \
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+    -DOCS2_HEXBOT_BUILD_UPSTREAM_TESTS=OFF
+```
+
+说明：
+- `--packages-up-to` 会自动带上 `ocs2_msgs`、`ocs2_core`、`ocs2_oc`、`ocs2_mpc`、`ocs2_pinocchio_interface`、`ocs2_centroidal_model` 等真实依赖
+- `OCS2_HEXBOT_BUILD_UPSTREAM_TESTS=OFF` 用于跳过上游 AnyMal 旧测试，先保证 Hexbot 主线可编
+- 容器产物统一落到 `build_jazzy/ install_jazzy/ log_jazzy/`
+
+**五、构建后的环境加载**
+
+```bash
+cd /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws
+source /opt/ros/jazzy/setup.bash
+source /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/install_jazzy/setup.bash
+export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+export ROS_DOMAIN_ID=0
+export FASTDDS_BUILTIN_TRANSPORTS=UDPv4
+```
+
+补充说明：
+- Jazzy 容器与 Humble 宿主机跨环境通信时，已验证必须显式设置 `FASTDDS_BUILTIN_TRANSPORTS=UDPv4`
+- 否则会出现桥接本地自测正常，但容器侧始终收不到 `/hexbot_mpc/input/*` 的假故障
+
+**六、宿主机运行态前置检查**
+
+在宿主机加载 Isaac 场景并启动仿真后，先执行：
+
+```bash
+cd /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws
+source /opt/ros/humble/setup.bash
+source /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/install_humble/setup.bash
+python3 /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_locomotion_mpc/src/check_hexbot_runtime_topics.py
+```
+
+探针默认要求：
+- `/clock`
+- `/joint_states`
+- `/odom`
+
+如果返回 `ready=false`：
+- 先查 Isaac 场景是否已经加载并开始播放
+- 再查 ROS bridge 是否真的启用
+- 不要先怀疑 `hexbot_runtime_mrt` 或 `ocs2_core`
+
+**七、当前 OCS2 Hexbot 主运行链**
+
+现在的主链已经不是旧的 dummy-only 结构，而是：
+
+- `hexbot_locomotion_mpc_bridge.py`
+  `/cmd_vel -> /hexbot_mpc/input/cmd_vel`
+  `/joint_states -> /hexbot_mpc/input/joint_states`
+  `/imu -> /hexbot_mpc/input/imu`
+  `/odom -> /hexbot_mpc/input/odom`
+  `/hexbot_mpc/output/joint_command -> /joint_command`
+- `hexbot_cmd_vel_target`
+  订阅 `/hexbot_mpc/input/cmd_vel`
+  订阅 `hexbot_mpc_observation`
+  发布 `hexbot_mpc_target`
+- `hexbot_auto_gait_command`
+  订阅 `/hexbot_mpc/input/cmd_vel`
+  发布 `hexbot_mpc_mode_schedule`
+- `hexbot_runtime_mrt`
+  订阅 `/hexbot_mpc/input/joint_states`
+  订阅 `/hexbot_mpc/input/odom`
+  发布 `hexbot_mpc_observation`
+  从 OCS2 策略评估后发布 `/hexbot_mpc/output/joint_command`
+
+`legged_robot_dummy` 仍然保留，但现在只作为回退链路；launch 默认已经切到 `hexbot_runtime_mrt`。
+
+**八、容器内启动 OCS2 主链**
+
+默认 SQP 入口：
+```bash
+ros2 launch ocs2_hexbot_legged_robot_ros hexbot_sqp.launch.py
+```
+
+说明：
+- 这条默认 SQP 入口已经在 2026-03-27 完成过一次真实联调验证
+- 在宿主机桥接层持续提供 `/joint_states + /odom + /cmd_vel` 后，容器端 `/hexbot_mpc/output/joint_command` 与宿主机 `/joint_command` 都收到了 18 关节命令
+- 这次验证证明的是跨环境 MPC 主发布链和 joint command 产出已打通，不应直接等同于 Isaac 实时场景已经在线
+
+当前已验证跑通的 smoke SQP 主线：
+```bash
+ros2 launch ocs2_hexbot_legged_robot_ros hexbot_sqp.launch.py \
+  taskFile:=/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/ocs2_hexbot_legged_robot/config/mpc/task_smoke.info \
+  gaitCommandFile:=/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/ocs2_hexbot_legged_robot/config/command/gait_smoke.info
+```
+
+如果需要强制退回 dummy：
+```bash
+ros2 launch ocs2_hexbot_legged_robot_ros hexbot_sqp.launch.py use_dummy:=true
+```
+
+说明：
+- `task_smoke.info` 会把求解器线程数、离散步长和 MPC 频率压到更保守的量级，适合作为当前 bring-up 基线
+- `gait_smoke.info` 会把移动 gait 暂时收敛到 STANCE，用来先验证 `/cmd_vel -> MPC -> /hexbot_mpc/output/joint_command -> /joint_command`
+- 这条 smoke SQP 主线已经在 2026-03-27 实机工作区里完成过一次真实验证，容器端 `/hexbot_mpc/output/joint_command` 与宿主机 `/joint_command` 都收到了 18 关节命令
+
+**九、这轮确认过的关键根因**
+
+1. Humble 宿主机与 Jazzy 容器混跑时，Fast DDS 默认传输会导致跨环境发现/收发异常，必须强制 `UDPv4`。
+2. `hexbot_runtime_mrt` 不能把 Unix 绝对时间戳直接传给 OCS2。
+3. 如果 observation time 是绝对秒，`GaitSchedule::tileModeSequenceTemplate()` 会尝试把 gait 从 `0` 铺到超大时间上界，最终触发 OOM killer，把 `legged_robot_sqp_mpc` / `legged_robot_ddp_mpc` 直接杀掉。
+4. 现在工作区里的 `hexbot_runtime_mrt` 已经把 observation 时间归一化为“从首帧开始的相对时间”，这也是本轮把 SQP/DDP smoke 主线救活的关键修复。
+5. 2026-03-27 最新一轮还确认了另一条关键稳定性修复：
+   当 `/odom` 或 `/joint_states` 出现非有限值，或 OCS2 返回非有限 state/input，或 active policy 已经过期时，
+   `hexbot_runtime_mrt` 会主动停止继续发布坏的 `/hexbot_mpc/output/joint_command` 并立刻请求 reset。
+6. 这条保护已经在 `10s @ linear.x=0.03, angular.z=0.12` mixed case 里真实触发过，
+   日志会出现 `MPC returned non-finite state/input. Dropping backend command and requesting a reset.`，
+   之后宿主机 `/joint_command` 与 `/odom` 仍保持有限值，没有再次扩散成全链路 `NaN`。
+
+**十、当前阶段目标**
+
+当前阶段不是一步到位“完成全部 MPC+WBC”，而是按顺序推进：
+
+1. 先让 Jazzy 容器稳定编过 Hexbot OCS2 主线。
+2. 再验证 `hexbot_runtime_mrt` 能收到真实 `/odom` 与 `/joint_states`。
+3. 再确认 `/hexbot_mpc/output/joint_command` 经过 bridge 能稳定落到宿主机 `/joint_command`。
+4. 最后再进入导航耦合和性能验收。

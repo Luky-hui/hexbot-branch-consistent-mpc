@@ -1,0 +1,346 @@
+恢复工程根目录：
+`/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src`
+
+**一、宿主机构建运行侧包**
+
+不要再手写 `--packages-select hexbot_locomotion_mpc`。这会在新工作区里漏掉 `hexbot_description_ros2`，导致 `package.sh` 缺失。
+
+标准方式：
+
+```bash
+bash /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/host_build_runtime_stack.sh
+cd /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws
+source /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/install_humble/setup.bash
+```
+
+**二、历史已验收导航链路**
+
+这部分仍然是旧的 tripod baseline，用于保留历史导航验收入口，不代表当前 MPC/WBC 主线。
+
+1. 启动 Isaac Sim 和 ROS bridge
+2. 启动导航：
+```bash
+ros2 launch hexbot_isaac_runtime navigation2.launch.py use_sim_time:=true
+```
+
+3. 启动当前 baseline：
+```bash
+ros2 launch hexbot_locomotion_v2 hexbot_locomotion_v2.launch.py use_sim_time:=true
+```
+
+4. 单次导航验收：
+```bash
+bash /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_locomotion_v2/scripts/run_single_nav_case.sh --preset nav_fwd_0p5
+bash /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_locomotion_v2/scripts/run_single_nav_case.sh --preset nav_fwd_1p0
+bash /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_locomotion_v2/scripts/run_single_nav_case.sh --preset nav_turn15_fwd_0p5
+```
+
+**三、当前优先推荐的基础步态自测**
+
+在 2026-03-27 这轮 Isaac Sim 联调里，机器人在 `odom` 中的初始朝向并不固定，因此不要再只看世界系 `delta_x/delta_y` 判断“是否直走”。基础步态验收应优先看机体系：
+
+- `delta_forward_m`
+- `delta_lateral_m`
+- `delta_yaw_rad`
+
+1. 启动当前优先推荐的基础步态基线：
+
+```bash
+bash /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_locomotion_v2/scripts/launch_basic_walk_loaded_tuned.sh
+```
+
+这条脚本实际等价于：
+
+```bash
+cd /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws
+source /opt/ros/humble/setup.bash
+source /home/u-zhuang/ros2_ws/install/setup.bash
+source /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/install_humble/setup.bash
+ros2 launch hexbot_locomotion_v2 hexbot_locomotion_v2.launch.py \
+  use_sim_time:=true \
+  mode:=tripod \
+  locomotion_startup_mode:=fixed_stand \
+  speed_scale:=0.5 \
+  tripod_max_linear_x:=0.05 \
+  tripod_max_angular_z:=0.20 \
+  tripod_forward_stride_m:=0.04 \
+  tripod_turn_stride_m:=0.03 \
+  geometry_config_path:=/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_locomotion_v2/config/hexbot_v2_stage2_loaded_equilibrium_candidate.yaml
+```
+
+2. 运行基础 smoke：
+
+```bash
+bash /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_locomotion_v2/scripts/run_basic_gait_smoke.sh
+```
+
+3. 当前这一轮已实际确认通过的机体系结果：
+
+- 启动恢复：
+  clean reload 后可在 `0.10s` 左右进入 `best_max_joint_diff_rad=0.0712`
+- `5s @ linear.x=0.03`：
+  `delta_forward_m=0.1118`，`delta_lateral_m=-0.0022`
+- `5s @ linear.x=0.05`：
+  `delta_forward_m=0.2010`，`delta_lateral_m=-0.0051`
+- `5s @ angular.z=0.12`：
+  `delta_yaw_rad=0.4544`
+- `10s @ linear.x=0.03, angular.z=0.12`：
+  `delta_forward_m=0.1884`，`delta_lateral_m=0.1418`，`delta_yaw_rad=1.0356`
+  同时 `arc_lateral_excess_m=0.0345`，说明真实超出理想圆弧的侧滑大约 `3.5 cm`
+- 走完恢复：
+  上述 mixed case 结束后仍可在 `0.12 rad` 阈值内回站，`best_max_joint_diff_rad=0.1064`
+
+4. 当前结论：
+
+- 先把 walking 基线固定在 `launch_basic_walk_loaded_tuned.sh`
+- `0.03 ~ 0.05 m/s` 前进已经稳定验证
+- `0.12 rad/s` 原地转向可用，但当前 tuned 基线偏保守，`5s` 内实测约 `0.454 rad`
+- forward + yaw 的 mixed case 已可稳定复现，当前额外侧滑约 `3 ~ 4 cm`
+- “running / 更高速” 还没有单独验收，不要提前并入导航链路
+
+5. 如果需要一个更保守、专门用于“重置后先站稳”的恢复 profile：
+
+```bash
+bash /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_locomotion_v2/scripts/launch_basic_walk_loaded_safe.sh
+```
+
+这条 profile 使用 loaded-equilibrium 站姿 + 更保守的 gait 包络，适合做恢复排障，不是当前首选 walking 基线。
+
+6. 如果仿真过程中需要直接控制 Isaac Sim：
+
+```bash
+python3 /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_description_ros2/isaac/isaac_runtime_control.py status
+python3 /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_description_ros2/isaac/isaac_runtime_control.py stop
+python3 /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_description_ros2/isaac/isaac_runtime_control.py play
+python3 /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_description_ros2/isaac/isaac_runtime_control.py reload-stage
+python3 /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_description_ros2/isaac/isaac_runtime_control.py reload-and-play
+```
+
+说明：
+
+- 当前这台机器上，`play/stop` 返回值不总是完全可信，优先看 `/joint_states`、`/odom`、`/clock` 是否恢复发布
+- 2026-03-27 这轮步态测试里，弧线行走后曾出现 `/joint_command` 已接近 stand、但 `/joint_states` 仍残留约 `0.18 ~ 0.50 rad` 偏差的情况
+- 这说明当前仍存在 Isaac 侧的恢复问题；`reload-stage` / `reload-and-play` 可作为更强的仿真复位入口
+
+7. 如果要一键诊断“理论 stand / `/joint_command` / `/joint_states` / Isaac applied action”四者是否一致：
+
+```bash
+source /opt/ros/humble/setup.bash
+source /home/u-zhuang/ros2_ws/install/setup.bash
+source /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/install_humble/setup.bash
+python3 /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_description_ros2/isaac/diagnose_hexbot_live_state.py
+```
+
+当前这轮诊断已经确认：
+
+- `expected stand == /joint_command == Isaac applied action`
+- 当前偏差来自 Isaac articulation 实际关节状态没有跟到目标
+- 当前 live articulation solver iterations 仍是 `position=32 / velocity=1`
+
+**四、MPC/WBC 桥接层**
+
+1. URDF 就绪性检查：
+
+```bash
+python3 /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_locomotion_mpc/src/check_hexbot_mpc_readiness.py \
+  --urdf /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_description_ros2/urdf/hexbot_isaac_rooted.urdf
+```
+
+2. 启动桥接层：
+
+先确认 Isaac Sim 不是只有进程在跑，而是真正发布了运行时话题：
+
+```bash
+cd /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws
+source /opt/ros/humble/setup.bash
+source /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/install_humble/setup.bash
+python3 /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_locomotion_mpc/src/check_hexbot_runtime_topics.py
+```
+
+说明：
+- 默认要求至少看到 `/clock + /joint_states + /odom`
+- 如果这里返回 `ready=false`，根因优先看 Isaac 场景是否已加载、仿真是否已开始、ROS bridge 是否真的启用
+- 2026-03-27 这台宿主机最近一次审计时，出现过“Isaac 进程在，但这三个话题全空”的情况；这不是 OCS2 报错，而是上游仿真运行态尚未起来
+
+探针通过后再启动桥接层：
+
+```bash
+cd /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws
+source /opt/ros/humble/setup.bash
+source /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/install_humble/setup.bash
+export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+export ROS_DOMAIN_ID=0
+export FASTDDS_BUILTIN_TRANSPORTS=UDPv4
+ros2 launch hexbot_locomotion_mpc hexbot_locomotion_mpc.launch.py \
+  use_sim_time:=true \
+  geometry_config_path:=/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_locomotion_mpc/config/hexbot_mpc_default.yaml
+```
+
+说明：
+- Humble 宿主机和 Jazzy 容器混跑时，必须显式导出 `FASTDDS_BUILTIN_TRANSPORTS=UDPv4`
+- 不加这行时，两边会出现“看起来都在同一域，但互相收不到话题”的现象
+
+3. 拉取第三方参考源码：
+
+```bash
+bash /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_locomotion_mpc/scripts/bootstrap_mpc_sources.sh
+```
+
+4. 专利主线闭环取证入口：
+
+```bash
+bash /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_locomotion_mpc/scripts/run_patent_closed_loop_case.sh
+```
+
+如果要直接复现当前 mixed 诊断用例：
+
+```bash
+bash /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_locomotion_mpc/scripts/run_patent_closed_loop_case.sh \
+  --duration 10.0 \
+  --linear-x 0.03 \
+  --angular-z 0.12
+```
+
+输出重点看：
+
+- `/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/log_humble/patent_closed_loop_probe_latest.json`
+- `/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/log_humble/patent_closed_loop_summary_latest.json`
+
+当前这条一键入口会自动把：
+
+- 宿主机闭环探针
+- 容器侧 `hexbot_mpc_target`
+- 容器侧 `hexbot_mpc_mode_schedule`
+- 容器侧 `hexbot_mpc_solver_diagnostics`
+
+合成到同一份 summary JSON，便于后续做专利实施例和 A/B 证据整理。
+
+**五、Jazzy 容器构建 OCS2 Hexbot**
+
+1. 启动容器：
+```bash
+sudo docker run -it --rm \
+  --net=host \
+  --ipc=host \
+  -v /home/u-zhuang/ros2_ws:/home/u-zhuang/ros2_ws \
+  osrf/ros:jazzy-desktop \
+  bash
+```
+
+2. 容器内初始化：
+```bash
+bash /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/container_setup_env.sh
+```
+
+3. 容器内构建：
+
+```bash
+bash /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/container_build_hexbot_stack.sh
+```
+
+说明：
+- 该脚本现在会自动把 `.tmp_upstream/ocs2_ros2/ocs2-ros2` 挂到工作区 `src/ocs2`
+- 如果缺少 `ocs2_robotic_assets`，会自动从上游 GitHub 拉取到 `.tmp_upstream/ocs2_ros2/ocs2-ros2/ocs2_robotic_assets`
+- 如果软链接不可用，会自动退回为复制
+- 你不需要再手动补 `ocs2_core`、`ocs2_msgs` 之类的源码路径
+
+4. 容器内加载环境：
+
+```bash
+cd /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws
+source /opt/ros/jazzy/setup.bash
+source /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/install_jazzy/setup.bash
+export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+export ROS_DOMAIN_ID=0
+export FASTDDS_BUILTIN_TRANSPORTS=UDPv4
+```
+
+**六、OCS2 Hexbot 主运行链**
+
+1. 默认入口仍然是 SQP：
+```bash
+ros2 launch ocs2_hexbot_legged_robot_ros hexbot_sqp.launch.py
+```
+
+说明：
+- 这条默认入口已经在 2026-03-27 完成过一次真实联调验证
+- 在宿主机持续提供 `/joint_states + /odom + /cmd_vel` 后，容器端 `/hexbot_mpc/output/joint_command` 与宿主机 `/joint_command` 都收到了 18 关节命令
+- 这里的“真实联调验证”指的是跨 Humble/Jazzy、跨 bridge、跨 OCS2 的真实发布链已打通；如果要切到 Isaac 实时场景，仍应先跑上面的宿主机话题探针
+- 最近一次这类验证不应直接解读为“Isaac 场景已经在线”；它验证的是主链收发和 joint command 产出
+- 2026-03-27 最新一轮已额外验证：`hexbot_runtime_mrt` 会在 `odom/joint_states` 非有限、policy 过期、或 MPC 返回非有限 state/input 时主动停止继续下发坏命令并请求 reset
+- 因此当前 mixed case 即使触发后端异常，也不应再把 `/joint_command` 污染成 `NaN`
+
+2. 当前已实际验证通过的 smoke SQP 主线：
+```bash
+cd /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws
+source /opt/ros/jazzy/setup.bash
+source /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/install_jazzy/setup.bash
+export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+export ROS_DOMAIN_ID=0
+export FASTDDS_BUILTIN_TRANSPORTS=UDPv4
+ros2 launch ocs2_hexbot_legged_robot_ros hexbot_sqp.launch.py \
+  taskFile:=/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/ocs2_hexbot_legged_robot/config/mpc/task_smoke.info \
+  gaitCommandFile:=/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/ocs2_hexbot_legged_robot/config/command/gait_smoke.info
+```
+
+3. 如需退回 dummy：
+```bash
+ros2 launch ocs2_hexbot_legged_robot_ros hexbot_sqp.launch.py use_dummy:=true
+```
+
+4. 当前自动节点职责：
+- `hexbot_cmd_vel_target`
+  `/hexbot_mpc/input/cmd_vel -> hexbot_mpc_target`
+- `hexbot_auto_gait_command`
+  `/hexbot_mpc/input/cmd_vel -> hexbot_mpc_mode_schedule`
+- `hexbot_runtime_mrt`
+  `/hexbot_mpc/input/joint_states + /hexbot_mpc/input/odom -> hexbot_mpc_observation`
+  `OCS2 policy -> /hexbot_mpc/output/joint_command`
+- `hexbot_locomotion_mpc_bridge.py`
+  `/cmd_vel /joint_states /imu /odom` 转发到 `/hexbot_mpc/input/*`
+  `/hexbot_mpc/output/joint_command -> /joint_command`
+
+5. 当前已确认的关键根因：
+- `hexbot_runtime_mrt` 必须把 observation 时间归一化到“首帧起点”
+- 如果直接把 Unix 绝对时间戳传进 OCS2，`GaitSchedule::tileModeSequenceTemplate()` 会把步态从 `0` 铺到一个极大的绝对秒数，最终触发 OOM killer
+- 这也是之前 `legged_robot_sqp_mpc` / `legged_robot_ddp_mpc` 被 `exit code -9` 杀掉的真实原因
+
+6. 关键配置文件：
+```bash
+/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/ocs2_hexbot_legged_robot/config/mpc/task.info
+/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/ocs2_hexbot_legged_robot/config/mpc/task_smoke.info
+/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/ocs2_hexbot_legged_robot/config/command/reference.info
+/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/ocs2_hexbot_legged_robot/config/command/gait.info
+/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/ocs2_hexbot_legged_robot/config/command/gait_smoke.info
+/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_locomotion_mpc/config/hexbot_mpc_default.yaml
+```
+
+**七、常用清理**
+
+说明：
+- `build/ install/ log/` 下的旧 root 产物不要再混用
+- 宿主机构建统一走 `build_humble/ install_humble/ log_humble/`
+- 容器构建统一走 `build_jazzy/ install_jazzy/ log_jazzy/`
+- 2026-03-27 已确认：容器侧 `LeggedRobotVisualizer` 旧版本曾把可视化状态发到全局 `/joint_states`。
+  现在应只看到真实 `/joint_states` 1 个 publisher，可视化话题应为 `/hexbot/visualization/joint_states`
+- 如果要彻底清空 Jazzy 容器运行残留，别只杀 `hexbot_runtime_mrt`，还要一起杀
+  `legged_robot_sqp_mpc / hexbot_cmd_vel_target / hexbot_auto_gait_command / robot_state_publisher`
+
+```bash
+sudo pkill -9 -f controller_server
+sudo pkill -9 -f smoother_server
+sudo pkill -9 -f planner_server
+sudo pkill -9 -f behavior_server
+sudo pkill -9 -f bt_navigator
+sudo pkill -9 -f waypoint_follower
+sudo pkill -9 -f velocity_smoother
+sudo pkill -9 -f lifecycle_manager
+sudo pkill -9 -f rtabmap
+sudo pkill -9 -f hexbot_locomotion_v2_node.py
+sudo pkill -9 -f hexbot_locomotion_mpc_bridge.py
+sudo pkill -9 -f hexbot_runtime_mrt
+printf 'root\n' | sudo -S docker exec -i ocs2_hexbot_jazzy bash -lc \
+  "pkill -f 'ros2 launch ocs2_hexbot_legged_robot_ros hexbot_sqp.launch.py|legged_robot_sqp_mpc|hexbot_runtime_mrt|hexbot_cmd_vel_target|hexbot_auto_gait_command|robot_state_publisher' || true"
+ros2 daemon stop
+ros2 daemon start
+```

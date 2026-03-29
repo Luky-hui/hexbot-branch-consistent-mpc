@@ -1,0 +1,53 @@
+﻿{
+  "robot_usd": "../urdf/hexbot_isaac_rooted_reimport/hexbot_isaac_rooted_reimport.usd",
+  "expected_joint_count": 18,
+  "joint_groups": {
+    "coxa": {
+      "stiffness": 360.0,
+      "damping": 140.0,
+      "max_force": 260.0,
+      "max_joint_velocity": 50.0,
+      "target_position_deg": 0.0
+    },
+    "femur": {
+      "stiffness": 520.0,
+      "damping": 190.0,
+      "max_force": 340.0,
+      "max_joint_velocity": 50.0,
+      "target_position_deg": 0.0
+    },
+    "tarsus": {
+      "stiffness": 520.0,
+      "damping": 190.0,
+      "max_force": 340.0,
+      "max_joint_velocity": 50.0,
+      "target_position_deg": 0.0
+    }
+  },
+  "foot_material": {
+    "path": "PhysicsMaterials/hexbotFootPhysicsMaterial",
+    "static_friction": 1.5,
+    "dynamic_friction": 1.2,
+    "restitution": 0.0
+  },
+  "joint_targets_deg": {
+    "coxa_joint_RR": 0.057296,
+    "femur_joint_RR": -7.494288,
+    "tarsus_joint_RR": 8.101623,
+    "coxa_joint_RM": -0.097403,
+    "femur_joint_RM": -9.579854,
+    "tarsus_joint_RM": 10.410643,
+    "coxa_joint_RF": -0.183346,
+    "femur_joint_RF": -11.401860,
+    "tarsus_joint_RF": 12.370159,
+    "coxa_joint_LR": 0.200535,
+    "femur_joint_LR": 5.975950,
+    "tarsus_joint_LR": -6.806739,
+    "coxa_joint_LM": 0.114592,
+    "femur_joint_LM": 7.803685,
+    "tarsus_joint_LM": -8.886575,
+    "coxa_joint_LF": -0.017189,
+    "femur_joint_LF": 9.889252,
+    "tarsus_joint_LF": -11.161218
+  }
+}

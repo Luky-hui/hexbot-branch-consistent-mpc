@@ -1,0 +1,802 @@
+<?xml version="1.0"?>
+<robot name="hexbot">
+  <link name="hexbot">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <mesh filename="package://hexbot_description_ros2/meshes/body.stl" />
+      </geometry>
+      <material name="hexbot_grey">
+        <color rgba="0.7 0.7 0.7 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <box size="0.3556 0.165 0.05" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.0 0.0 0.0" />
+      <mass value="2.0" />
+      <inertia ixx="0.004954166666666667" ixy="0.0" ixz="0.0" iyy="0.021491893333333335" iyz="0.0" izz="0.02561272666666667" />
+    </inertial>
+  </link>
+  <joint name="base_link_root_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="hexbot" />
+    <child link="base_link" />
+  </joint>
+  <link name="base_link" />
+  <joint name="leg_center_joint_RR" type="fixed">
+    <origin rpy="0.0 0.0 0.0" xyz="-0.106 -0.06 0.0" />
+    <parent link="base_link" />
+    <child link="leg_center_RR" />
+  </joint>
+  <link name="leg_center_RR" />
+  <joint name="coxa_joint_RR" type="revolute">
+    <origin rpy="0.0 0.0 -2.0943951023931953" xyz="0.0 0.0 0.0" />
+    <parent link="leg_center_RR" />
+    <child link="coxa_RR" />
+    <axis xyz="0.0 0.0 1.0" />
+    <limit effort="35.0" lower="-3.14" upper="3.14" velocity="20.0" />
+  </joint>
+  <link name="coxa_RR">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <mesh filename="package://hexbot_description_ros2/meshes/coxa_R.stl" />
+      </geometry>
+      <material name="hexbot_grey">
+        <color rgba="0.7 0.7 0.7 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.032755 0.0 0.0" />
+      <geometry>
+        <box size="0.06551 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.032755 0.0 0.0" />
+      <mass value="0.08" />
+      <inertia ixx="6.453333333333332e-06" ixy="0.0" ixz="0.0" iyy="3.183706733333333e-05" iyz="0.0" izz="3.183706733333333e-05" />
+    </inertial>
+  </link>
+  <joint name="femur_joint_RR" type="revolute">
+    <origin rpy="-1.5707963267948966 1.5707963267948966 0.0" xyz="0.06551 0.0 0.0" />
+    <parent link="coxa_RR" />
+    <child link="femur_RR" />
+    <axis xyz="0.0 0.0 1" />
+    <limit effort="35.0" lower="-3.14" upper="3.14" velocity="20.0" />
+  </joint>
+  <link name="femur_RR">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <mesh filename="package://hexbot_description_ros2/meshes/femur_R.stl" />
+      </geometry>
+      <material name="hexbot_grey">
+        <color rgba="0.7 0.7 0.7 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.009085 -0.0329 0.0" />
+      <geometry>
+        <box size="0.022 0.0658 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.009085 -0.0329 0.0" />
+      <mass value="0.1" />
+      <inertia ixx="4.011366666666667e-05" ixy="0.0" ixz="0.0" iyy="8.066666666666667e-06" iyz="0.0" izz="4.011366666666667e-05" />
+    </inertial>
+  </link>
+  <joint name="tarsus_joint_RR" type="revolute">
+    <origin rpy="3.141592653589793 0.0 0.0" xyz="0.01817 -0.0658 0.0" />
+    <parent link="femur_RR" />
+    <child link="tarsus_RR" />
+    <axis xyz="0.0 0.0 -1" />
+    <limit effort="35.0" lower="-3.14" upper="3.14" velocity="20.0" />
+  </joint>
+  <link name="tarsus_RR">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <mesh filename="package://hexbot_description_ros2/meshes/tarsus_R.stl" />
+      </geometry>
+      <material name="hexbot_grey">
+        <color rgba="0.7 0.7 0.7 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.059145 0.0 0.0" />
+      <geometry>
+        <box size="0.11829 0.018 0.018" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.059145 0.0 0.0" />
+      <mass value="0.09" />
+      <inertia ixx="4.859999999999999e-06" ixy="0.0" ixz="0.0" iyy="0.00010737393075" iyz="0.0" izz="0.00010737393075" />
+    </inertial>
+  </link>
+  <joint name="foot_joint_RR" type="fixed">
+    <origin rpy="0.0 0.0 0.0" xyz="0.11829 0.0 0.0" />
+    <parent link="tarsus_RR" />
+    <child link="foot_RR" />
+  </joint>
+  <!-- Isaac Sim repair note:
+       keep foot_* as explicit fixed links with stable collision-sphere names.
+       The post-import audit/synthesis path targets generated_collision_sphere
+       semantics under each foot root and should not rely on anonymous URDF
+       collision blocks. -->
+  <link name="foot_RR">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+      <material name="hexbot_contact_orange">
+        <color rgba="1.0 0.55 0.1 1.0" />
+      </material>
+    </visual>
+    <collision name="generated_collision_sphere">
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.0 0.0 0.0" />
+      <mass value="0.02" />
+      <inertia ixx="1.3333333333333336e-06" ixy="0.0" ixz="0.0" iyy="1.3333333333333336e-06" iyz="0.0" izz="1.3333333333333336e-06" />
+    </inertial>
+  </link>
+  <joint name="leg_center_joint_RM" type="fixed">
+    <origin rpy="0.0 0.0 0.0" xyz="0.0 -0.072 0.0" />
+    <parent link="base_link" />
+    <child link="leg_center_RM" />
+  </joint>
+  <link name="leg_center_RM" />
+  <joint name="coxa_joint_RM" type="revolute">
+    <origin rpy="0.0 0.0 -1.5707963267948966" xyz="0.0 0.0 0.0" />
+    <parent link="leg_center_RM" />
+    <child link="coxa_RM" />
+    <axis xyz="0.0 0.0 1.0" />
+    <limit effort="35.0" lower="-3.14" upper="3.14" velocity="20.0" />
+  </joint>
+  <link name="coxa_RM">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <mesh filename="package://hexbot_description_ros2/meshes/coxa_R.stl" />
+      </geometry>
+      <material name="hexbot_grey">
+        <color rgba="0.7 0.7 0.7 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.032755 0.0 0.0" />
+      <geometry>
+        <box size="0.06551 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.032755 0.0 0.0" />
+      <mass value="0.08" />
+      <inertia ixx="6.453333333333332e-06" ixy="0.0" ixz="0.0" iyy="3.183706733333333e-05" iyz="0.0" izz="3.183706733333333e-05" />
+    </inertial>
+  </link>
+  <joint name="femur_joint_RM" type="revolute">
+    <origin rpy="-1.5707963267948966 1.5707963267948966 0.0" xyz="0.06551 0.0 0.0" />
+    <parent link="coxa_RM" />
+    <child link="femur_RM" />
+    <axis xyz="0.0 0.0 1" />
+    <limit effort="35.0" lower="-3.14" upper="3.14" velocity="20.0" />
+  </joint>
+  <link name="femur_RM">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <mesh filename="package://hexbot_description_ros2/meshes/femur_R.stl" />
+      </geometry>
+      <material name="hexbot_grey">
+        <color rgba="0.7 0.7 0.7 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.009085 -0.0329 0.0" />
+      <geometry>
+        <box size="0.022 0.0658 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.009085 -0.0329 0.0" />
+      <mass value="0.1" />
+      <inertia ixx="4.011366666666667e-05" ixy="0.0" ixz="0.0" iyy="8.066666666666667e-06" iyz="0.0" izz="4.011366666666667e-05" />
+    </inertial>
+  </link>
+  <joint name="tarsus_joint_RM" type="revolute">
+    <origin rpy="3.141592653589793 0.0 0.0" xyz="0.01817 -0.0658 0.0" />
+    <parent link="femur_RM" />
+    <child link="tarsus_RM" />
+    <axis xyz="0.0 0.0 -1" />
+    <limit effort="35.0" lower="-3.14" upper="3.14" velocity="20.0" />
+  </joint>
+  <link name="tarsus_RM">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <mesh filename="package://hexbot_description_ros2/meshes/tarsus_R.stl" />
+      </geometry>
+      <material name="hexbot_grey">
+        <color rgba="0.7 0.7 0.7 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.059145 0.0 0.0" />
+      <geometry>
+        <box size="0.11829 0.018 0.018" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.059145 0.0 0.0" />
+      <mass value="0.09" />
+      <inertia ixx="4.859999999999999e-06" ixy="0.0" ixz="0.0" iyy="0.00010737393075" iyz="0.0" izz="0.00010737393075" />
+    </inertial>
+  </link>
+  <joint name="foot_joint_RM" type="fixed">
+    <origin rpy="0.0 0.0 0.0" xyz="0.11829 0.0 0.0" />
+    <parent link="tarsus_RM" />
+    <child link="foot_RM" />
+  </joint>
+  <link name="foot_RM">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+      <material name="hexbot_contact_orange">
+        <color rgba="1.0 0.55 0.1 1.0" />
+      </material>
+    </visual>
+    <collision name="generated_collision_sphere">
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.0 0.0 0.0" />
+      <mass value="0.02" />
+      <inertia ixx="1.3333333333333336e-06" ixy="0.0" ixz="0.0" iyy="1.3333333333333336e-06" iyz="0.0" izz="1.3333333333333336e-06" />
+    </inertial>
+  </link>
+  <joint name="leg_center_joint_RF" type="fixed">
+    <origin rpy="0.0 0.0 0.0" xyz="0.106 -0.06 0.0" />
+    <parent link="base_link" />
+    <child link="leg_center_RF" />
+  </joint>
+  <link name="leg_center_RF" />
+  <joint name="coxa_joint_RF" type="revolute">
+    <origin rpy="0.0 0.0 -1.0471975511965976" xyz="0.0 0.0 0.0" />
+    <parent link="leg_center_RF" />
+    <child link="coxa_RF" />
+    <axis xyz="0.0 0.0 1.0" />
+    <limit effort="35.0" lower="-3.14" upper="3.14" velocity="20.0" />
+  </joint>
+  <link name="coxa_RF">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <mesh filename="package://hexbot_description_ros2/meshes/coxa_R.stl" />
+      </geometry>
+      <material name="hexbot_grey">
+        <color rgba="0.7 0.7 0.7 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.032755 0.0 0.0" />
+      <geometry>
+        <box size="0.06551 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.032755 0.0 0.0" />
+      <mass value="0.08" />
+      <inertia ixx="6.453333333333332e-06" ixy="0.0" ixz="0.0" iyy="3.183706733333333e-05" iyz="0.0" izz="3.183706733333333e-05" />
+    </inertial>
+  </link>
+  <joint name="femur_joint_RF" type="revolute">
+    <origin rpy="-1.5707963267948966 1.5707963267948966 0.0" xyz="0.06551 0.0 0.0" />
+    <parent link="coxa_RF" />
+    <child link="femur_RF" />
+    <axis xyz="0.0 0.0 1" />
+    <limit effort="35.0" lower="-3.14" upper="3.14" velocity="20.0" />
+  </joint>
+  <link name="femur_RF">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <mesh filename="package://hexbot_description_ros2/meshes/femur_R.stl" />
+      </geometry>
+      <material name="hexbot_grey">
+        <color rgba="0.7 0.7 0.7 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.009085 -0.0329 0.0" />
+      <geometry>
+        <box size="0.022 0.0658 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.009085 -0.0329 0.0" />
+      <mass value="0.1" />
+      <inertia ixx="4.011366666666667e-05" ixy="0.0" ixz="0.0" iyy="8.066666666666667e-06" iyz="0.0" izz="4.011366666666667e-05" />
+    </inertial>
+  </link>
+  <joint name="tarsus_joint_RF" type="revolute">
+    <origin rpy="3.141592653589793 0.0 0.0" xyz="0.01817 -0.0658 0.0" />
+    <parent link="femur_RF" />
+    <child link="tarsus_RF" />
+    <axis xyz="0.0 0.0 -1" />
+    <limit effort="35.0" lower="-3.14" upper="3.14" velocity="20.0" />
+  </joint>
+  <link name="tarsus_RF">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <mesh filename="package://hexbot_description_ros2/meshes/tarsus_R.stl" />
+      </geometry>
+      <material name="hexbot_grey">
+        <color rgba="0.7 0.7 0.7 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.059145 0.0 0.0" />
+      <geometry>
+        <box size="0.11829 0.018 0.018" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.059145 0.0 0.0" />
+      <mass value="0.09" />
+      <inertia ixx="4.859999999999999e-06" ixy="0.0" ixz="0.0" iyy="0.00010737393075" iyz="0.0" izz="0.00010737393075" />
+    </inertial>
+  </link>
+  <joint name="foot_joint_RF" type="fixed">
+    <origin rpy="0.0 0.0 0.0" xyz="0.11829 0.0 0.0" />
+    <parent link="tarsus_RF" />
+    <child link="foot_RF" />
+  </joint>
+  <link name="foot_RF">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+      <material name="hexbot_contact_orange">
+        <color rgba="1.0 0.55 0.1 1.0" />
+      </material>
+    </visual>
+    <collision name="generated_collision_sphere">
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.0 0.0 0.0" />
+      <mass value="0.02" />
+      <inertia ixx="1.3333333333333336e-06" ixy="0.0" ixz="0.0" iyy="1.3333333333333336e-06" iyz="0.0" izz="1.3333333333333336e-06" />
+    </inertial>
+  </link>
+  <joint name="leg_center_joint_LR" type="fixed">
+    <origin rpy="0.0 0.0 0.0" xyz="-0.106 0.06 0.0" />
+    <parent link="base_link" />
+    <child link="leg_center_LR" />
+  </joint>
+  <link name="leg_center_LR" />
+  <joint name="coxa_joint_LR" type="revolute">
+    <origin rpy="0.0 0.0 2.0943951023931953" xyz="0.0 0.0 0.0" />
+    <parent link="leg_center_LR" />
+    <child link="coxa_LR" />
+    <axis xyz="0.0 0.0 1.0" />
+    <limit effort="35.0" lower="-3.14" upper="3.14" velocity="20.0" />
+  </joint>
+  <link name="coxa_LR">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <mesh filename="package://hexbot_description_ros2/meshes/coxa_L.stl" />
+      </geometry>
+      <material name="hexbot_grey">
+        <color rgba="0.7 0.7 0.7 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.032755 0.0 0.0" />
+      <geometry>
+        <box size="0.06551 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.032755 0.0 0.0" />
+      <mass value="0.08" />
+      <inertia ixx="6.453333333333332e-06" ixy="0.0" ixz="0.0" iyy="3.183706733333333e-05" iyz="0.0" izz="3.183706733333333e-05" />
+    </inertial>
+  </link>
+  <joint name="femur_joint_LR" type="revolute">
+    <origin rpy="-1.5707963267948966 1.5707963267948966 0.0" xyz="0.06551 0.0 0.0" />
+    <parent link="coxa_LR" />
+    <child link="femur_LR" />
+    <axis xyz="0.0 0.0 -1" />
+    <limit effort="35.0" lower="-3.14" upper="3.14" velocity="20.0" />
+  </joint>
+  <link name="femur_LR">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <mesh filename="package://hexbot_description_ros2/meshes/femur_L.stl" />
+      </geometry>
+      <material name="hexbot_grey">
+        <color rgba="0.7 0.7 0.7 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.009085 -0.0329 0.0" />
+      <geometry>
+        <box size="0.022 0.0658 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.009085 -0.0329 0.0" />
+      <mass value="0.1" />
+      <inertia ixx="4.011366666666667e-05" ixy="0.0" ixz="0.0" iyy="8.066666666666667e-06" iyz="0.0" izz="4.011366666666667e-05" />
+    </inertial>
+  </link>
+  <joint name="tarsus_joint_LR" type="revolute">
+    <origin rpy="3.141592653589793 0.0 0.0" xyz="0.01817 -0.0658 0.0" />
+    <parent link="femur_LR" />
+    <child link="tarsus_LR" />
+    <axis xyz="0.0 0.0 1" />
+    <limit effort="35.0" lower="-3.14" upper="3.14" velocity="20.0" />
+  </joint>
+  <link name="tarsus_LR">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <mesh filename="package://hexbot_description_ros2/meshes/tarsus_L.stl" />
+      </geometry>
+      <material name="hexbot_grey">
+        <color rgba="0.7 0.7 0.7 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.059145 0.0 0.0" />
+      <geometry>
+        <box size="0.11829 0.018 0.018" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.059145 0.0 0.0" />
+      <mass value="0.09" />
+      <inertia ixx="4.859999999999999e-06" ixy="0.0" ixz="0.0" iyy="0.00010737393075" iyz="0.0" izz="0.00010737393075" />
+    </inertial>
+  </link>
+  <joint name="foot_joint_LR" type="fixed">
+    <origin rpy="0.0 0.0 0.0" xyz="0.11829 0.0 0.0" />
+    <parent link="tarsus_LR" />
+    <child link="foot_LR" />
+  </joint>
+  <link name="foot_LR">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+      <material name="hexbot_contact_orange">
+        <color rgba="1.0 0.55 0.1 1.0" />
+      </material>
+    </visual>
+    <collision name="generated_collision_sphere">
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.0 0.0 0.0" />
+      <mass value="0.02" />
+      <inertia ixx="1.3333333333333336e-06" ixy="0.0" ixz="0.0" iyy="1.3333333333333336e-06" iyz="0.0" izz="1.3333333333333336e-06" />
+    </inertial>
+  </link>
+  <joint name="leg_center_joint_LM" type="fixed">
+    <origin rpy="0.0 0.0 0.0" xyz="0.0 0.072 0.0" />
+    <parent link="base_link" />
+    <child link="leg_center_LM" />
+  </joint>
+  <link name="leg_center_LM" />
+  <joint name="coxa_joint_LM" type="revolute">
+    <origin rpy="0.0 0.0 1.5707963267948966" xyz="0.0 0.0 0.0" />
+    <parent link="leg_center_LM" />
+    <child link="coxa_LM" />
+    <axis xyz="0.0 0.0 1.0" />
+    <limit effort="35.0" lower="-3.14" upper="3.14" velocity="20.0" />
+  </joint>
+  <link name="coxa_LM">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <mesh filename="package://hexbot_description_ros2/meshes/coxa_L.stl" />
+      </geometry>
+      <material name="hexbot_grey">
+        <color rgba="0.7 0.7 0.7 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.032755 0.0 0.0" />
+      <geometry>
+        <box size="0.06551 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.032755 0.0 0.0" />
+      <mass value="0.08" />
+      <inertia ixx="6.453333333333332e-06" ixy="0.0" ixz="0.0" iyy="3.183706733333333e-05" iyz="0.0" izz="3.183706733333333e-05" />
+    </inertial>
+  </link>
+  <joint name="femur_joint_LM" type="revolute">
+    <origin rpy="-1.5707963267948966 1.5707963267948966 0.0" xyz="0.06551 0.0 0.0" />
+    <parent link="coxa_LM" />
+    <child link="femur_LM" />
+    <axis xyz="0.0 0.0 -1" />
+    <limit effort="35.0" lower="-3.14" upper="3.14" velocity="20.0" />
+  </joint>
+  <link name="femur_LM">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <mesh filename="package://hexbot_description_ros2/meshes/femur_L.stl" />
+      </geometry>
+      <material name="hexbot_grey">
+        <color rgba="0.7 0.7 0.7 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.009085 -0.0329 0.0" />
+      <geometry>
+        <box size="0.022 0.0658 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.009085 -0.0329 0.0" />
+      <mass value="0.1" />
+      <inertia ixx="4.011366666666667e-05" ixy="0.0" ixz="0.0" iyy="8.066666666666667e-06" iyz="0.0" izz="4.011366666666667e-05" />
+    </inertial>
+  </link>
+  <joint name="tarsus_joint_LM" type="revolute">
+    <origin rpy="3.141592653589793 0.0 0.0" xyz="0.01817 -0.0658 0.0" />
+    <parent link="femur_LM" />
+    <child link="tarsus_LM" />
+    <axis xyz="0.0 0.0 1" />
+    <limit effort="35.0" lower="-3.14" upper="3.14" velocity="20.0" />
+  </joint>
+  <link name="tarsus_LM">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <mesh filename="package://hexbot_description_ros2/meshes/tarsus_L.stl" />
+      </geometry>
+      <material name="hexbot_grey">
+        <color rgba="0.7 0.7 0.7 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.059145 0.0 0.0" />
+      <geometry>
+        <box size="0.11829 0.018 0.018" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.059145 0.0 0.0" />
+      <mass value="0.09" />
+      <inertia ixx="4.859999999999999e-06" ixy="0.0" ixz="0.0" iyy="0.00010737393075" iyz="0.0" izz="0.00010737393075" />
+    </inertial>
+  </link>
+  <joint name="foot_joint_LM" type="fixed">
+    <origin rpy="0.0 0.0 0.0" xyz="0.11829 0.0 0.0" />
+    <parent link="tarsus_LM" />
+    <child link="foot_LM" />
+  </joint>
+  <link name="foot_LM">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+      <material name="hexbot_contact_orange">
+        <color rgba="1.0 0.55 0.1 1.0" />
+      </material>
+    </visual>
+    <collision name="generated_collision_sphere">
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.0 0.0 0.0" />
+      <mass value="0.02" />
+      <inertia ixx="1.3333333333333336e-06" ixy="0.0" ixz="0.0" iyy="1.3333333333333336e-06" iyz="0.0" izz="1.3333333333333336e-06" />
+    </inertial>
+  </link>
+  <joint name="leg_center_joint_LF" type="fixed">
+    <origin rpy="0.0 0.0 0.0" xyz="0.106 0.06 0.0" />
+    <parent link="base_link" />
+    <child link="leg_center_LF" />
+  </joint>
+  <link name="leg_center_LF" />
+  <joint name="coxa_joint_LF" type="revolute">
+    <origin rpy="0.0 0.0 1.0471975511965976" xyz="0.0 0.0 0.0" />
+    <parent link="leg_center_LF" />
+    <child link="coxa_LF" />
+    <axis xyz="0.0 0.0 1.0" />
+    <limit effort="35.0" lower="-3.14" upper="3.14" velocity="20.0" />
+  </joint>
+  <link name="coxa_LF">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <mesh filename="package://hexbot_description_ros2/meshes/coxa_L.stl" />
+      </geometry>
+      <material name="hexbot_grey">
+        <color rgba="0.7 0.7 0.7 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.032755 0.0 0.0" />
+      <geometry>
+        <box size="0.06551 0.022 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.032755 0.0 0.0" />
+      <mass value="0.08" />
+      <inertia ixx="6.453333333333332e-06" ixy="0.0" ixz="0.0" iyy="3.183706733333333e-05" iyz="0.0" izz="3.183706733333333e-05" />
+    </inertial>
+  </link>
+  <joint name="femur_joint_LF" type="revolute">
+    <origin rpy="-1.5707963267948966 1.5707963267948966 0.0" xyz="0.06551 0.0 0.0" />
+    <parent link="coxa_LF" />
+    <child link="femur_LF" />
+    <axis xyz="0.0 0.0 -1" />
+    <limit effort="35.0" lower="-3.14" upper="3.14" velocity="20.0" />
+  </joint>
+  <link name="femur_LF">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <mesh filename="package://hexbot_description_ros2/meshes/femur_L.stl" />
+      </geometry>
+      <material name="hexbot_grey">
+        <color rgba="0.7 0.7 0.7 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.009085 -0.0329 0.0" />
+      <geometry>
+        <box size="0.022 0.0658 0.022" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.009085 -0.0329 0.0" />
+      <mass value="0.1" />
+      <inertia ixx="4.011366666666667e-05" ixy="0.0" ixz="0.0" iyy="8.066666666666667e-06" iyz="0.0" izz="4.011366666666667e-05" />
+    </inertial>
+  </link>
+  <joint name="tarsus_joint_LF" type="revolute">
+    <origin rpy="3.141592653589793 0.0 0.0" xyz="0.01817 -0.0658 0.0" />
+    <parent link="femur_LF" />
+    <child link="tarsus_LF" />
+    <axis xyz="0.0 0.0 1" />
+    <limit effort="35.0" lower="-3.14" upper="3.14" velocity="20.0" />
+  </joint>
+  <link name="tarsus_LF">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <mesh filename="package://hexbot_description_ros2/meshes/tarsus_L.stl" />
+      </geometry>
+      <material name="hexbot_grey">
+        <color rgba="0.7 0.7 0.7 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.059145 0.0 0.0" />
+      <geometry>
+        <box size="0.11829 0.018 0.018" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.059145 0.0 0.0" />
+      <mass value="0.09" />
+      <inertia ixx="4.859999999999999e-06" ixy="0.0" ixz="0.0" iyy="0.00010737393075" iyz="0.0" izz="0.00010737393075" />
+    </inertial>
+  </link>
+  <joint name="foot_joint_LF" type="fixed">
+    <origin rpy="0.0 0.0 0.0" xyz="0.11829 0.0 0.0" />
+    <parent link="tarsus_LF" />
+    <child link="foot_LF" />
+  </joint>
+  <link name="foot_LF">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+      <material name="hexbot_contact_orange">
+        <color rgba="1.0 0.55 0.1 1.0" />
+      </material>
+    </visual>
+    <collision name="generated_collision_sphere">
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.0 0.0 0.0" />
+      <mass value="0.02" />
+      <inertia ixx="1.3333333333333336e-06" ixy="0.0" ixz="0.0" iyy="1.3333333333333336e-06" iyz="0.0" izz="1.3333333333333336e-06" />
+    </inertial>
+  </link>
+  <joint name="imu_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0.0 0.0 0.0" />
+    <parent link="base_link" />
+    <child link="imu_link" />
+  </joint>
+  <link name="imu_link" />
+  <joint name="camera_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0.15 0.0255 0.034" />
+    <parent link="base_link" />
+    <child link="camera_link" />
+  </joint>
+  <link name="camera_link" />
+  <joint name="camera_rgb_optical_joint" type="fixed">
+    <origin rpy="-1.57079632679 0 -1.57079632679" xyz="0 0 0" />
+    <parent link="camera_link" />
+    <child link="camera_rgb_optical_frame" />
+  </joint>
+  <link name="camera_rgb_optical_frame" />
+  <joint name="rplidar_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0.0 0.0 0.1" />
+    <parent link="base_link" />
+    <child link="laser_link" />
+  </joint>
+  <link name="laser_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0" />
+      <mass value="0.12" />
+      <inertia ixx="0.00012" ixy="0.0" ixz="0.0" iyy="0.00012" iyz="0.0" izz="0.00018" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0" />
+      <geometry>
+        <mesh filename="package://hexbot_description_ros2/meshes/rplidar_G4.STL" />
+      </geometry>
+      <material name="lidar_grey">
+        <color rgba="0.7 0.7 0.7 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0.0 0.0 0.0" />
+      <geometry>
+        <cylinder length="0.050" radius="0.038" />
+      </geometry>
+    </collision>
+  </link>
+</robot>
+

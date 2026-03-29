@@ -1,0 +1,172 @@
+robot_name: hexbot
+leg_order:
+  - RR
+  - RM
+  - RF
+  - LR
+  - LM
+  - LF
+
+controller:
+  publish_rate_hz: 50.0
+  joint_command_topic: /joint_command
+  joint_state_topic: /joint_states
+  cmd_vel_topic: /cmd_vel
+  imu_topic: /imu
+  odom_frame: odom
+  base_frame: base_link
+  imu_frame: imu_link
+  enable_debug_topics: true
+  cmd_vel_timeout_sec: 0.5
+  cmd_vel_linear_deadband: 0.002
+  cmd_vel_angular_deadband: 0.02
+  cmd_filter_tau_sec: 0.18
+  cmd_accel_limit_x: 0.6
+  cmd_accel_limit_y: 0.3
+  cmd_accel_limit_yaw: 0.8
+  seed_timeout_sec: 1.5
+  reject_seed_if_near_zero: true
+  zero_seed_threshold_rad: 0.02
+  locomotion_startup_mode: fixed_stand
+  startup_joint_tolerance_rad: 0.25
+  recovery_complete_joint_tolerance_rad: 0.10
+  stand_recovery_timeout_sec: 2.0
+  default_mode: tripod
+  tripod_max_joint_delta_rad: 0.16
+  tripod_ik_reject_error_norm: 0.02
+  seed_from_joint_states: true
+  reset_to_stand_on_shutdown: true
+
+imu_estimator:
+  imu_timeout_sec: 0.25
+  imu_orientation_alpha: 0.15
+  imu_angular_velocity_alpha: 0.2
+  imu_roll_offset_rad: 0.0
+  imu_pitch_offset_rad: 0.0
+  imu_gravity_min_mps2: 7.0
+  imu_gravity_max_mps2: 12.5
+  imu_fail_open: true
+
+stabilizer:
+  enable_imu_stabilizer: true
+  stabilizer_deadband_rad: 0.02
+  stabilizer_activation_rad: 0.03
+  stabilizer_roll_kp: 0.22
+  stabilizer_roll_kd: 0.035
+  stabilizer_pitch_kp: 0.25
+  stabilizer_pitch_kd: 0.04
+  stabilizer_stand_scale: 0.35
+  stabilizer_walk_scale: 0.0
+  stabilizer_max_roll_correction_rad: 0.08
+  stabilizer_max_pitch_correction_rad: 0.08
+  stabilizer_max_correction_rate_rad_s: 0.35
+
+ik:
+  max_iterations: 60
+  tolerance: 1.0e-4
+  damping: 5.0e-3
+  finite_difference_step: 1.0e-5
+  max_delta_per_iteration: 0.25
+  joint_lower_limit: -3.14
+  joint_upper_limit: 3.14
+  joint_lower_limits: [-1.05, -1.0, -1.35]
+  joint_upper_limits: [1.05, 1.0, 1.35]
+
+gait:
+  # Conservative tripod envelope combined with the loaded-equilibrium stance
+  # observed in Isaac on 2026-03-27. This profile is intended for low-speed
+  # body-motion validation before more aggressive gait tuning.
+  cycle_length: 8
+  leg_lift_height: 0.028
+  nominal_step_length: 0.016
+  tripod_base_cadence_hz: 1.1
+  tripod_max_cadence_hz: 1.8
+  tripod_max_linear_x: 0.03
+  tripod_max_linear_y: 0.04
+  tripod_max_angular_z: 0.12
+  tripod_forward_stride_m: 0.03
+  tripod_lateral_stride_m: 0.015
+  tripod_turn_stride_m: 0.035
+  tripod_turn_gain: 1.0
+  tripod_turn_input_exponent: 0.8
+  tripod_turn_cadence_boost_hz: 0.2
+  tripod_lateral_gain: 0.5
+  tripod_stop_cadence_hz: 1.4
+  tripod_groups:
+    A: [RR, RF, LM]
+    B: [RM, LR, LF]
+
+stance:
+  # Loaded equilibrium foot targets measured from the live Isaac stand pose.
+  per_leg_stance_positions:
+    RR: {x: -0.17259770, y: -0.17503159, z: -0.12632744}
+    RM: {x: -0.00107645, y: -0.20489228, z: -0.11858886}
+    RF: {x: 0.17054178, y: -0.17549405, z: -0.11143755}
+    LR: {x: -0.17210394, y: 0.17256344, z: -0.12976515}
+    LM: {x: -0.00045538, y: 0.20210703, z: -0.12261186}
+    LF: {x: 0.17117026, y: 0.17230687, z: -0.11486529}
+
+neutral_joint_positions:
+  RR: [0.001, -0.1308, 0.1414]
+  RM: [-0.0017, -0.1672, 0.1817]
+  RF: [-0.0032, -0.199, 0.2159]
+  LR: [0.0035, 0.1043, -0.1188]
+  LM: [0.002, 0.1362, -0.1551]
+  LF: [-0.0003, 0.1726, -0.1948]
+
+links:
+  coxa_to_femur:
+    xyz: [0.06551, 0.0, 0.0]
+    rpy: [-1.5707963267948966, 1.5707963267948966, 0.0]
+  femur_to_tarsus:
+    xyz: [0.01817, -0.0658, 0.0]
+    rpy: [3.141592653589793, 0.0, 0.0]
+  tarsus_to_foot:
+    xyz: [0.11829, 0.0, 0.0]
+    rpy: [0.0, 0.0, 0.0]
+
+legacy_reference:
+  init_coxa_angle_rad: [-0.5235987755982988, 0.0, 0.5235987755982988, -0.5235987755982988, 0.0, 0.5235987755982988]
+  coxa_to_center_x: [-0.106, 0.0, 0.106, -0.106, 0.0, 0.106]
+  coxa_to_center_y: [0.06, 0.072, 0.06, 0.06, 0.072, 0.06]
+  init_foot_pos_x: [-0.06876, 0.0, 0.06876, -0.06876, 0.0, 0.06876]
+  init_foot_pos_y: [0.1191, 0.13751, 0.1191, 0.1191, 0.13751, 0.1191]
+  init_foot_pos_z: [0.10696, 0.10696, 0.10696, 0.10696, 0.10696, 0.10696]
+
+legs:
+  RR:
+    mount_xyz: [-0.106, -0.06, 0.0]
+    mount_rpy: [0.0, 0.0, -2.0943951023931953]
+    coxa_axis: [0.0, 0.0, 1.0]
+    femur_axis: [0.0, 0.0, 1.0]
+    tarsus_axis: [0.0, 0.0, -1.0]
+  RM:
+    mount_xyz: [0.0, -0.072, 0.0]
+    mount_rpy: [0.0, 0.0, -1.5707963267948966]
+    coxa_axis: [0.0, 0.0, 1.0]
+    femur_axis: [0.0, 0.0, 1.0]
+    tarsus_axis: [0.0, 0.0, -1.0]
+  RF:
+    mount_xyz: [0.106, -0.06, 0.0]
+    mount_rpy: [0.0, 0.0, -1.0471975511965976]
+    coxa_axis: [0.0, 0.0, 1.0]
+    femur_axis: [0.0, 0.0, 1.0]
+    tarsus_axis: [0.0, 0.0, -1.0]
+  LR:
+    mount_xyz: [-0.106, 0.06, 0.0]
+    mount_rpy: [0.0, 0.0, 2.0943951023931953]
+    coxa_axis: [0.0, 0.0, 1.0]
+    femur_axis: [0.0, 0.0, -1.0]
+    tarsus_axis: [0.0, 0.0, 1.0]
+  LM:
+    mount_xyz: [0.0, 0.072, 0.0]
+    mount_rpy: [0.0, 0.0, 1.5707963267948966]
+    coxa_axis: [0.0, 0.0, 1.0]
+    femur_axis: [0.0, 0.0, -1.0]
+    tarsus_axis: [0.0, 0.0, 1.0]
+  LF:
+    mount_xyz: [0.106, 0.06, 0.0]
+    mount_rpy: [0.0, 0.0, 1.0471975511965976]
+    coxa_axis: [0.0, 0.0, 1.0]
+    femur_axis: [0.0, 0.0, -1.0]
+    tarsus_axis: [0.0, 0.0, 1.0]

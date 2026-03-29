@@ -1,0 +1,25 @@
+﻿<?xml version="1.0"?>
+<package format="3">
+  <name>hexbot_description_ros2</name>
+  <version>0.1.0</version>
+  <description>ROS 2 description package for the 18-DOF HEXBOT model defined by the guidebook.</description>
+
+  <maintainer email="devnull@example.com">Workspace Maintainer</maintainer>
+  <license>BSD-3-Clause</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>urdf</depend>
+  <depend>xacro</depend>
+
+  <exec_depend>joint_state_publisher</exec_depend>
+  <exec_depend>joint_state_publisher_gui</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

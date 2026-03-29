@@ -1,0 +1,61 @@
+list
+{
+  [0] stance
+  [1] tripod_a
+  [2] tripod_b
+  [3] tripod_cycle
+}
+
+stance
+{
+  modeSequence
+  {
+    [0] STANCE
+  }
+  switchingTimes
+  {
+    [0] 0.0
+    [1] 0.5
+  }
+}
+
+tripod_a
+{
+  modeSequence
+  {
+    [0] RR_RF_LM
+  }
+  switchingTimes
+  {
+    [0] 0.0
+    [1] 0.35
+  }
+}
+
+tripod_b
+{
+  modeSequence
+  {
+    [0] RM_LR_LF
+  }
+  switchingTimes
+  {
+    [0] 0.0
+    [1] 0.35
+  }
+}
+
+tripod_cycle
+{
+  modeSequence
+  {
+    [0] RR_RF_LM
+    [1] RM_LR_LF
+  }
+  switchingTimes
+  {
+    [0] 0.0
+    [1] 0.35
+    [2] 0.70
+  }
+}
