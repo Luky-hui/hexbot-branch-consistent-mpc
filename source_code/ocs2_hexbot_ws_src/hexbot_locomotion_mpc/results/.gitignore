@@ -1,0 +1,15 @@
+# Keep only paper-ready aggregate artifacts under version control.
+*
+!.gitignore
+!batch_paper_forward_v1/
+batch_paper_forward_v1/*
+!batch_paper_forward_v1/analysis/
+batch_paper_forward_v1/analysis/*
+!batch_paper_forward_v1/analysis/hexbot_metrics_per_run.csv
+!batch_paper_forward_v1/analysis/hexbot_metrics_group_summary.csv
+!batch_paper_forward_v1/analysis/analysis_manifest.json
+!batch_paper_forward_v1/analysis/figures/
+batch_paper_forward_v1/analysis/figures/*
+!batch_paper_forward_v1/analysis/figures/*.pdf
+!batch_paper_forward_v1/analysis/figures/*.svg
+!batch_paper_forward_v1/analysis/figures/plot_manifest.json

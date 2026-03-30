@@ -1,0 +1,84 @@
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{figure1_forward_displacement_and_tracking_rmse.pdf}
+    \caption{
+    Comparison of the proposed IPM-based controller with the SQP baseline in terms of forward displacement and tracking RMSE over 10 independent closed-loop trials. Error bars denote one standard deviation across repeated experiments.
+    The figure shows that the proposed method not only achieves substantially larger forward progress, but also reduces tracking error with markedly improved repeatability. In particular, the IPM formulation consistently converts commanded forward motion into physical displacement, whereas the SQP baseline remains near zero motion and exhibits systematically worse tracking performance.}
+    \label{fig:forward_rmse}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{figure2_guard_and_max_still_boxplots.pdf}
+    \caption{
+    Distribution of branch-guard interventions and maximum still duration for the proposed method and the SQP baseline across 10 repeated experiments. Box plots visualize the median, interquartile range, whiskers, and outliers.
+    This figure provides direct evidence of the stability and safety advantage of the proposed controller: branch-guard events collapse to zero and the robot remains continuously active, while the baseline exhibits frequent guard activation and prolonged stagnation. The result indicates that the IPM solver, together with the branch-consistent formulation, removes the failure mode that previously forced runtime post hoc intervention.}
+    \label{fig:guard_still}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.82\linewidth]{figure3_mpc_solve_time_with_realtime_budget.pdf}
+    \caption{
+    Average MPC solve time for the proposed method and the SQP baseline, with error bars indicating one standard deviation over 10 repeated runs. The red dashed line marks a 10~ms real-time budget.
+    Although the proposed IPM solver incurs slightly higher computation time than the SQP baseline, it remains comfortably below the real-time limit with an average solve time of approximately 4.8~ms. Therefore, the improved physical consistency and robustness are achieved without sacrificing deployable control frequency.}
+    \label{fig:solve_time}
+\end{figure}
+
+\subsection{Locomotion Performance and Tracking Accuracy}
+
+Figure~\ref{fig:forward_rmse} summarizes the locomotion outcome over 10 independent closed-loop trials for the proposed controller and the SQP baseline. The comparison reveals a clear qualitative and quantitative separation between the two methods. The proposed method achieves a mean forward displacement of 0.065~m, whereas the SQP baseline remains effectively stagnant, with a mean displacement of $-0.002$~m. At the same time, the tracking RMSE decreases from 0.242~m in the baseline to 0.175~m in the proposed method.
+
+This result is important for two reasons. First, it shows that the transition from SQP to IPM is not merely a numerical refinement, but a functional change that restores physically meaningful forward locomotion. Second, the lower tracking error indicates that the robot no longer spends control effort compensating for internally inconsistent joint-space solutions. Instead, the commanded motion is translated into actual body progression in Isaac Sim with substantially improved fidelity.
+
+It is also worth noting that variance must be interpreted carefully in this context. The SQP baseline exhibits a relatively small spread in forward displacement, but this does not indicate robustness. Rather, it reflects a repeatable failure mode in which the robot consistently fails to make progress. By contrast, the proposed method combines positive forward motion with low trial-to-trial dispersion, which is the more meaningful indicator of repeatable locomotion performance. In other words, the proposed controller is not only better on average, but also reliably better.
+
+Taken together, Fig.~\ref{fig:forward_rmse} demonstrates that enforcing branch-consistent physical structure within the optimization problem, and solving that constrained problem with IPM, directly improves both locomotion effectiveness and tracking quality. This is the central behavioral result of the paper: once the incorrect local branch is removed from the effective optimization path, the robot recovers stable and purposeful forward walking.
+
+\subsection{Constraint Satisfaction and System Safety}
+
+The safety and stability implications of the proposed formulation are shown in Fig.~\ref{fig:guard_still}. The most striking observation is that the proposed method yields zero branch-guard interventions across all 10 trials, while the SQP baseline produces an average of 275.9 guard events per run. In parallel, the maximum still duration drops from 5.64~s to 0.64~s, and the trunk-sink rate decreases from 10\% to 0\%.
+
+These statistics reveal the practical consequence of the solver-level change. Under the SQP baseline, the controller repeatedly generates outputs that must be corrected or blocked by a runtime safety guard. Such behavior is undesirable for two reasons: it indicates that the optimizer is still visiting physically inconsistent states, and it forces the runtime layer to operate as a reactive damage-control mechanism rather than as a lightweight supervisory filter. The resulting control loop is therefore burdened by repeated interventions, loss of smoothness, and prolonged stagnation.
+
+By contrast, the proposed method eliminates the need for such interventions in the tested regime. This strongly suggests that the \emph{branch-consistency constraint} is no longer being bypassed or neutralized inside the optimization pipeline. Instead, physically invalid tarsus branches are excluded before they can manifest as executable joint commands. In safety terms, this is a substantial shift: the controller moves from post hoc rejection of unsafe outputs to proactive exclusion of unsafe solution branches from the feasible search process.
+
+The reduction in still time further supports this interpretation. Long still intervals in the baseline are not benign pauses; they are an outward symptom of internal solver inconsistency and repeated guard-triggered suppression of motion. Once these pathological branch excursions disappear, the robot maintains continuous locomotor activity without entering prolonged frozen states. Figure~\ref{fig:guard_still} therefore provides the clearest evidence that the proposed method improves not only task performance, but also operational safety and closed-loop regularity.
+
+\subsection{Real-Time Feasibility and Computational Cost}
+
+Figure~\ref{fig:solve_time} compares the computational burden of the two solvers using the average MPC solve time measured over repeated runs. As expected, the proposed IPM formulation is computationally more expensive than the SQP baseline, with a mean solve time of 4.82~ms versus 3.56~ms. However, both methods remain well below the 10~ms reference budget on the average-solve-time metric used for online monitoring.
+
+This result is crucial for the practical relevance of the method. A common concern when replacing SQP with a more constraint-faithful interior-point approach is that improved robustness may come at the cost of unusable latency. The present experiments do not support that concern. The additional computational overhead is modest in absolute terms, and the controller remains comfortably within a real-time operating regime for the tested hardware and simulation loop.
+
+More importantly, the slight increase in computation must be interpreted relative to the large improvement in physical validity and closed-loop behavior. The baseline is faster, but it is faster at solving the wrong effective problem, namely one in which branch-inconsistent local minima remain accessible and must later be filtered by runtime guards. The proposed method spends slightly more computation to solve a problem that is behaviorally meaningful and operationally stable. From a systems perspective, this is an advantageous trade-off: a small increase in optimization time yields a large reduction in intervention events, stagnation, and task failure.
+
+Accordingly, Fig.~\ref{fig:solve_time} supports the claim that the proposed solver formulation is not only more reliable, but also deployable. The data show that stronger constraint handling can be achieved without sacrificing real-time feasibility.
+
+\subsection{Extended Endurance and Robustness}
+
+The controlled A/B comparison above establishes the causal benefit of solver-visible branch consistency. We next evaluate whether the same controller remains effective over longer horizons under the promoted endurance configuration, namely the settings that yielded the best repeated forward-walking behavior after the solver-level repair had already been validated. These endurance results are therefore not intended to replace the short-horizon A/B comparison, but to extend it from causal diagnosis to operational persistence.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.92\textwidth]{endurance_timeseries.pdf}
+    \caption{
+    Time-series extracted from the captured odometry window of the final 60-second endurance evaluation. Top: forward displacement grows monotonically and reaches approximately 0.638~m by the end of the recorded window. Middle: yaw drift remains bounded and stays within a practically controlled range rather than diverging into the large heading excursions observed in unstable long-horizon trials. Bottom: base height varies only at the centimeter scale, with an overall range of about 0.011~m. Together, these traces provide visual evidence that the proposed controller preserved sustained progression, bounded heading error, and stable body posture during long-horizon walking.}
+    \label{fig:endurance_timeseries}
+\end{figure*}
+
+As shown in Fig.~\ref{fig:endurance_timeseries}, the long-horizon response remained structured rather than erratic: forward progress accumulated monotonically, yaw drift stayed bounded, and base-height variation remained small throughout the captured closed-loop window. In a repeated 20-second endurance evaluation over five runs, the proposed controller achieved a mean Isaac-frame forward displacement of 0.306~m with a standard deviation of 0.012~m. At the same time, the mean absolute yaw drift remained at 5.85$^\circ$, the mean maximum still duration was 0.66~s, and the average MPC solve time stayed at 4.62~ms. Importantly, these runs maintained zero branch-guard interventions, zero backend rejects, and no trunk-sink or weird-pose events. This result demonstrates that the proposed controller is not merely capable of short bursts of correct motion, but can preserve forward locomotion quality over repeated medium-horizon trials with low dispersion.
+
+We then performed a final 60-second endurance evaluation with the optimized runtime preserved. In this long-horizon run, the robot sustained 0.638~m forward displacement, 8.27$^\circ$ yaw drift, and a body-height range of only 0.011~m, while the average MPC solve time remained 4.63~ms. The mode schedule remained in the expected walking regime, and no branch-guard events, backend rejects, or fault resets were observed. These measurements are significant because they show that the controller maintains bounded heading error and stable base-height behavior even after the test duration is tripled relative to the repeated 20-second trials.
+
+Taken together, the endurance results show that the proposed formulation scales beyond the short-horizon acceptance setting. Although the forward-distance growth is not perfectly linear with time, the controller preserves the two properties that matter most for deployability: solver throughput remains in the real-time regime, and the robot continues to walk without entering the pathological branch-switching or posture-collapse modes that characterized the original SQP pipeline. In this sense, the endurance data strengthen the practical interpretation of the paper: the proposed method is not only numerically correct, but operationally durable.
+
+\subsection{Discussion and Broader Implications}
+
+The broader contribution of this study lies in exposing a subtle but consequential failure mode of SQP-based MPC in high-dimensional legged systems. In a hexapod, the combination of redundant contacts, hybrid gait transitions, and multiple joint-space branch possibilities creates an optimization landscape in which task-space similarity can mask joint-space inconsistency. Under these conditions, a warm-started SQP method may converge to a deceptive local minimum that appears acceptable after linearization, yet corresponds to a physically incorrect branch of the mechanism. Because this failure can remain hidden until the command reaches the runtime safety layer, it is especially dangerous: the controller may look numerically healthy while systematically producing behavior that must be suppressed after optimization.
+
+The proposed remedy changes this architecture at a more fundamental level. By combining an IPM solver with an explicit hard \emph{branch-consistency constraint}, the controller no longer treats physical branch validity as a post-processing preference. Instead, it encodes that validity directly into the admissible solution set and uses a solver whose constraint handling remains active in the regime that matters for locomotion. This distinction is conceptually important. Runtime guards can prevent damage, but they cannot repair a flawed optimization problem. In contrast, feasible-set shaping addresses the pathology at its source.
+
+We are careful not to overstate the result: the present experiments do not constitute a complete formal proof of safety for arbitrary terrain, disturbances, or contact uncertainty. However, they do establish a much stronger foundation for such guarantees. Once physically impossible or undesired branches are excluded at the solver level, future safety arguments can be built around a controller whose optimization domain is already aligned with mechanism-level reality. In that sense, the proposed formulation points toward a more principled pathway to \emph{provable safety}: not by adding increasingly aggressive post hoc rejection logic, but by ensuring that unsafe branches are structurally absent from the optimization problem itself.
+
+This perspective is likely to become even more important for locomotion over complex terrain, where the dimensionality of the contact-planning problem and the severity of nonlinear coupling both increase. As legged robots move toward more agile behaviors and more demanding environments, solver accuracy can no longer be evaluated purely in terms of objective convergence or nominal speed. It must also be judged by whether the solver preserves the physical semantics of the mechanism. The results presented here suggest that interior-point methods, when paired with physically meaningful hard constraints, provide a promising and scalable direction for future multi-legged robot MPC.

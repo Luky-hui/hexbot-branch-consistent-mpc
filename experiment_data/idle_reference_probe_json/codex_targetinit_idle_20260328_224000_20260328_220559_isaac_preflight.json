@@ -1,0 +1,82 @@
+{
+  "clean": true,
+  "failures": [],
+  "odom": {
+    "available": true,
+    "received": 84,
+    "position_xyz_m": [
+      0.004374146895685261,
+      -0.0008775413063181228,
+      -0.026032002886591767
+    ],
+    "rpy_rad": [
+      0.019018472269880956,
+      0.028499026119208078,
+      -0.0006538587148243395
+    ],
+    "linear_xyz_mps": [
+      -0.0039496342651546,
+      0.001454454381018877,
+      0.0
+    ],
+    "angular_xyz_radps": [
+      0.0,
+      0.0,
+      0.002672691596671939
+    ]
+  },
+  "joint_states": {
+    "available": true,
+    "received": 85,
+    "joint_count": 18,
+    "max_abs_velocity_rad_s": 0.5369,
+    "reference_file": "/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/ocs2_hexbot_legged_robot/config/command/reference.info",
+    "max_abs_position_error_rad": 0.19440000000000002,
+    "missing_expected_joints": [],
+    "top_position_diffs": [
+      {
+        "joint": "femur_joint_RF",
+        "expected_rad": -0.199,
+        "actual_rad": -0.3934,
+        "abs_error_rad": 0.19440000000000002
+      },
+      {
+        "joint": "tarsus_joint_RF",
+        "expected_rad": 0.2159,
+        "actual_rad": 0.4023,
+        "abs_error_rad": 0.18639999999999998
+      },
+      {
+        "joint": "femur_joint_RM",
+        "expected_rad": -0.1672,
+        "actual_rad": -0.3415,
+        "abs_error_rad": 0.17430000000000004
+      },
+      {
+        "joint": "tarsus_joint_RM",
+        "expected_rad": 0.1817,
+        "actual_rad": 0.3476,
+        "abs_error_rad": 0.16590000000000002
+      },
+      {
+        "joint": "femur_joint_RR",
+        "expected_rad": -0.1308,
+        "actual_rad": -0.2739,
+        "abs_error_rad": 0.14309999999999998
+      },
+      {
+        "joint": "tarsus_joint_RR",
+        "expected_rad": 0.1414,
+        "actual_rad": 0.2788,
+        "abs_error_rad": 0.1374
+      }
+    ]
+  },
+  "thresholds": {
+    "min_base_z": null,
+    "max_abs_roll_rad": 0.35,
+    "max_abs_pitch_rad": 0.35,
+    "max_joint_speed_rad_s": 2.0,
+    "max_joint_position_error_rad": 0.45
+  }
+}

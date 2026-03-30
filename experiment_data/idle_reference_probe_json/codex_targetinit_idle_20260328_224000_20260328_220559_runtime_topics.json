@@ -1,0 +1,56 @@
+{
+  "expected_joint_count": 18,
+  "failures": [],
+  "min_messages": 1,
+  "probe_duration_sec": 2.0,
+  "ready": true,
+  "topics": {
+    "/clock": {
+      "last_sim_time_sec": 850.133377671,
+      "last_wall_age_sec": 0.0008275508880615234,
+      "last_wall_time_sec": 1774706778.8628693,
+      "publishers": 1,
+      "received": 83,
+      "required": true
+    },
+    "/cmd_vel": {
+      "last_angular_z": null,
+      "last_linear_x": null,
+      "last_linear_y": null,
+      "last_wall_age_sec": null,
+      "last_wall_time_sec": null,
+      "publishers": 0,
+      "received": 0,
+      "required": false
+    },
+    "/imu": {
+      "last_frame_id": "imu_link",
+      "last_header_stamp_sec": 850.100044336,
+      "last_wall_age_sec": 0.04334402084350586,
+      "last_wall_time_sec": 1774706778.8203528,
+      "publishers": 1,
+      "received": 82,
+      "required": false
+    },
+    "/joint_states": {
+      "last_header_stamp_sec": 850.133377671,
+      "last_joint_name_count": 18,
+      "last_position_count": 18,
+      "last_wall_age_sec": 2.288818359375e-05,
+      "last_wall_time_sec": 1774706778.863674,
+      "publishers": 1,
+      "received": 83,
+      "required": true
+    },
+    "/odom": {
+      "last_child_frame_id": "base_link",
+      "last_frame_id": "odom",
+      "last_header_stamp_sec": 850.100044336,
+      "last_wall_age_sec": 0.043555498123168945,
+      "last_wall_time_sec": 1774706778.8201413,
+      "publishers": 1,
+      "received": 82,
+      "required": true
+    }
+  }
+}

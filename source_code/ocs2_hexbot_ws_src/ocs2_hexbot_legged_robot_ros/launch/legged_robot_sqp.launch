@@ -1,0 +1,62 @@
+<?xml version="1.0" ?>
+
+<launch>
+    <arg name="use_sim_time"       default="true" />
+    <arg name="use_dummy"          default="false" />
+    <arg name="rviz"               default="false" />
+    <arg name="description_name"   default="hexbot_description"/>
+    <arg name="multiplot"          default="false"/>
+
+    <arg name="taskFile"          default="$(find ocs2_hexbot_legged_robot)/config/mpc/task.info"/>
+    <arg name="referenceFile"     default="$(find ocs2_hexbot_legged_robot)/config/command/reference.info"/>
+    <arg name="urdfFile"          default="$(find hexbot_description_ros2)/urdf/hexbot_isaac_rooted.urdf"/>
+    <arg name="gaitCommandFile"   default="$(find ocs2_hexbot_legged_robot)/config/command/gait.info"/>
+
+    <group if="$(arg rviz)">
+      <param name="$(arg description_name)" textfile="$(arg urdfFile)"/>
+      <arg name="rvizconfig" default="$(find ocs2_hexbot_legged_robot_ros)/rviz/legged_robot.rviz" />
+      <node pkg="rviz" type="rviz" name="rviz" args="-d $(arg rvizconfig)" output="screen">
+        <param name="use_sim_time" value="$(arg use_sim_time)" />
+      </node>
+    </group>
+
+    <group if="$(arg multiplot)">
+      <include file="$(find ocs2_hexbot_legged_robot_ros)/launch/multiplot.launch"/>
+    </group>
+
+    <param name="multiplot"         value="$(arg multiplot)"/>
+    <param name="taskFile"          value="$(arg taskFile)" />
+    <param name="referenceFile"     value="$(arg referenceFile)" />
+    <param name="urdfFile"          value="$(arg urdfFile)" />
+    <param name="gaitCommandFile"   value="$(arg gaitCommandFile)"/>
+    <param name="use_sim_time"      value="$(arg use_sim_time)"/>
+
+    <node pkg="ocs2_hexbot_legged_robot_ros" type="legged_robot_sqp_mpc" name="hexbot_sqp_mpc"
+          output="screen" launch-prefix=""/>
+
+    <group if="$(arg use_dummy)">
+      <node pkg="ocs2_hexbot_legged_robot_ros" type="legged_robot_dummy" name="hexbot_mrt"
+            output="screen" launch-prefix="gnome-terminal --">
+        <param name="backendJointCommandTopic" value="/hexbot_mpc/output/joint_command"/>
+      </node>
+    </group>
+
+    <group unless="$(arg use_dummy)">
+      <node pkg="ocs2_hexbot_legged_robot_ros" type="hexbot_runtime_mrt" name="hexbot_runtime_mrt"
+            output="screen" launch-prefix="gnome-terminal --">
+        <param name="jointStatesTopic" value="/hexbot_mpc/input/joint_states"/>
+        <param name="odomTopic" value="/hexbot_mpc/input/odom"/>
+        <param name="backendJointCommandTopic" value="/hexbot_mpc/output/joint_command"/>
+      </node>
+    </group>
+
+    <node pkg="ocs2_hexbot_legged_robot_ros" type="hexbot_cmd_vel_target" name="hexbot_target"
+          output="screen" launch-prefix="gnome-terminal --">
+      <param name="cmdVelTopic" value="/hexbot_mpc/input/cmd_vel"/>
+    </node>
+
+    <node pkg="ocs2_hexbot_legged_robot_ros" type="hexbot_auto_gait_command" name="hexbot_gait_command"
+          output="screen" launch-prefix="gnome-terminal --">
+      <param name="cmdVelTopic" value="/hexbot_mpc/input/cmd_vel"/>
+    </node>
+</launch>

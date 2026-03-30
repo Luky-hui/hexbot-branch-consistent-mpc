@@ -1,0 +1,96 @@
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.98\textwidth]{methodology_overview.pdf}
+    \caption{
+    修复后的 ROS~2--Isaac Sim 闭环控制链总览。左侧给出了标准控制流：\texttt{cmd\_vel} 依次经过目标生成、OCS2 优化、策略回放和仿真反馈。中间以高亮方式标出原有 SQP 路径中的失效环节：branch-consistency 条件会在局部求解路径上被“架空”，错误分支命令从求解器中溢出，最终只能依赖 runtime guard 进行事后拦截。右侧给出了本文的 IPM 修复路径：\emph{TarsusBranchConstraint} 在求解器内部动态塑造可行搜索域，使禁止分支在命令发布之前就被排除在外。该图直接说明了本文修复的因果位置：真正被修复的是求解器内部的可行域，而不是下游 runtime 过滤层。}
+    \label{fig:methodology_overview}
+\end{figure*}
+
+\subsection{最优控制问题表述}
+
+图~\ref{fig:methodology_overview} 给出了本文失效定位与修复路径在系统层面的整体位置。本文的关键区别并不仅仅是更换了一个数值后端，而是改变了“物理分支可行性究竟在闭环架构中的哪一层被执行”。
+
+设第 $k$ 个离散时刻的系统状态为 $x_k \in \mathbb{R}^{n_x}$，其中包含浮动基座状态和执行器关节坐标；控制输入为 $u_k \in \mathbb{R}^{n_u}$，其中包含执行器命令与接触相关决策变量。则长度为 $N$ 的滚动时域 MPC 问题可写为
+\begin{align}
+\min_{\{x_k,u_k\}} \quad & \sum_{k=0}^{N-1} \ell(x_k,u_k) + \Phi(x_N), \\
+\text{s.t.} \quad & x_{k+1} = f(x_k,u_k), \\
+& g_{\mathrm{eq}}(x_k,u_k) = 0, \\
+& g_{\mathrm{ineq}}(x_k,u_k) \le 0, \\
+& x_0 = \hat{x},
+\end{align}
+其中，$\ell(\cdot)$ 与 $\Phi(\cdot)$ 分别为阶段代价与终端代价，$f(\cdot)$ 为离散动力学模型，$\hat{x}$ 为当前观测状态。
+
+本文处理的问题并非来自步态时序、代价权重或 runtime guard 阈值本身，而是来自最优控制问题中没有充分编码 tarsus 关节左右物理解分支的可行性条件。因此，优化器可能会收敛到任务空间上近似合理、但机构意义上错误的局部极小值。
+
+\subsection{为什么原有 SQP 路径会失败}
+
+在原有控制链中，分支一致性条件虽然在逻辑层面被识别，但在真正生成 walking command 的求解路径中并没有以足够强的方式发挥作用。这一点在单次迭代或强烈依赖 warm start 的 SQP 流程中尤其危险，因为局部二次子问题始终围绕上一时刻的可行或近可行解展开。一旦 warm start 已经落在错误的 $\pi$-branch 附近，求解器便可能沿着这一局部支路继续线性化并固化错误极小值。
+
+一般而言，SQP 子问题可写作
+\begin{align}
+\min_{\Delta z} \quad \frac{1}{2}\Delta z^\top H \Delta z + g^\top \Delta z + \rho\,\varphi\!\left(h(z^{(w)}) + J_h(z^{(w)})\Delta z\right),
+\end{align}
+其中 $z$ 为决策变量堆叠，$z^{(w)}$ 为 warm start，$H$ 和 $g$ 定义局部二次模型，$\varphi(\cdot)$ 表示与不等式残差相关的罚函数或 merit function 项。如果不等式在数值求解中没有作为真正的硬约束被积极处理，那么错误分支并没有从搜索空间中被去除，而只是被“弱化地不鼓励”。对于高非线性、高冗余的多足系统，这一区别是决定性的。
+
+我们的诊断进一步表明，该问题并非由约束自身的奇异 Jacobian 引起。tarsus 分支约束对关节位置是仿射的，其 Jacobian 为常值，行向量即 $\pm e_i^\top$。因此，失效根因并不在于约束本身病态，而在于求解路径上该不等式没有真正塑造 walking phase 的有效可行域。
+
+\subsection{Tarsus 分支一致性约束}
+
+设 $q_k$ 为从状态 $x_k$ 中抽取出的执行器关节位置块，$\mathcal{R}$ 与 $\mathcal{L}$ 分别表示右侧和左侧 tarsus 关节索引集合。定义 margin $m>0$，则要求
+\begin{align}
+q_{i,k} &\ge m, \qquad i \in \mathcal{R}, \\
+q_{j,k} &\le -m, \qquad j \in \mathcal{L}.
+\end{align}
+等价地，可将分支可行性写成如下仿射不等式：
+\begin{align}
+h_{\mathrm{branch}}(x_k) =
+\begin{bmatrix}
+m\mathbf{1} - S_{\mathcal{R}} E_q x_k \\
+S_{\mathcal{L}} E_q x_k + m\mathbf{1}
+\end{bmatrix}
+\le 0,
+\end{align}
+其中 $E_q$ 用于从完整状态向量中选择执行器关节位置块，$S_{\mathcal{R}}$ 与 $S_{\mathcal{L}}$ 为右侧与左侧 tarsus 的行选择矩阵。
+
+这一建模具有两个关键优点。其一，它直接对机构的物理解分支进行编码；其二，由于该约束是仿射的，其 Jacobian 为常值且形式简单：
+\begin{align}
+\nabla_x h_{\mathrm{branch}}(x_k) =
+\begin{bmatrix}
+- S_{\mathcal{R}} E_q \\
+\phantom{-} S_{\mathcal{L}} E_q
+\end{bmatrix}.
+\end{align}
+因此，只要求解器真正执行该不等式，错误分支就会被直接从可行域中删除，而不会引入额外的强非线性奇异性。
+
+\subsection{基于 IPM 的约束执行}
+
+为了确保分支一致性在求解过程中持续生效，本文采用内点法求解 MPC。对不等式约束引入松弛变量 $s_k > 0$，则受约束问题写作
+\begin{align}
+h_{\mathrm{branch}}(x_k) + s_k = 0, \qquad s_k > 0,
+\end{align}
+并通过 barrier 项构造增强目标函数：
+\begin{align}
+\min_{\{x_k,u_k,s_k\}} \quad
+\sum_{k=0}^{N-1} \ell(x_k,u_k) + \Phi(x_N)
+- \mu \sum_{k=0}^{N} \sum_i \log s_{k,i},
+\end{align}
+其中 $\mu > 0$ 为 barrier 参数。
+
+这一形式从根本上改变了分支约束在数值求解中的地位。它不再是叠加在目标函数上的偏好项，而是进入原始-对偶可行性条件，在每次迭代中都被显式处理。在标准 IPM 假设下，只要问题可行且求解器收敛到满足阶段不等式的 KKT 点，则每个优化得到的 tarsus 输出都必须位于允许分支之上。
+
+据此，我们可以给出如下机制层面的安全结论。
+
+\textbf{命题 1（分支安全性）}
+\emph{若包含 $h_{\mathrm{branch}}(x_k)\le 0$ 的 MPC 问题可行，且 IPM 求解器返回的解在所有预测时刻均满足该不等式，则任意右侧 tarsus 必有 $q_{i,k}\ge m$，任意左侧 tarsus 必有 $q_{j,k}\le -m$。因此，优化器不可能输出位于禁止分支上的 tarsus 命令。}
+
+该命题的证明是直接的，因为该不等式与所需的符号条件完全等价，且本身为仿射形式。更重要的是，这一保证属于\emph{求解器内部的安全性}，而非 runtime 层面的事后补救。因此，本文方法至少在“分支可行性”这一关键机制层面上提供了可证明的安全性。虽然这还不足以推出任意复杂地形、任意接触不确定性下的全局安全结论，但它为高维六足机器人控制中的安全证明奠定了更坚实的基础。
+
+\subsection{评测流程}
+
+本文在 Isaac Sim 闭环中对两种控制条件进行重复实验：其一为启用 branch consistency 的 IPM 方法，其二为关闭该约束的 SQP 基线。由于 Hexbot 资产在仿真中初始朝向接近世界坐标系的 $-X$，因此本文将 Isaac 世界位移投影到机器人 \texttt{base\_link} 前向轴上，以此作为真实的前向位移指标，而不是直接使用世界坐标系下的原始 $x$ 位移。这一处理避免了坐标系符号倒置带来的错误结论。
+
+\subsection{工程实现与复现说明}
+
+复现本文实时性结果的一个关键工程前提是：实际运行的 Jazzy 二进制必须以优化模式编译，例如 \texttt{RelWithDebInfo} 或 \texttt{Release}。在实现审计过程中，我们曾在其他条件近似相同的 replay 下观察到，一旦构建链丢失优化标志，IPM 的平均求解时间会从约 4.6~ms 激增到 96~ms，等效闭环更新频率也会从约 200~Hz 断崖式下降到约 9~Hz，最终导致前向行走退化为接近停滞。需要强调的是，在这种退化构建下，前向目标地平线本身仍然存在，但求解器吞吐能力已经成为系统瓶颈，控制器因而无法维持连续步态推进。
+
+这一现象并不改变本文的算法贡献，但它是正确解释实验结果所必需满足的复现条件。换言之，关于分支一致性执行、长航时行走稳定性以及实时性的结论，都应建立在经过优化编译的二进制之上。本文因此将构建优化视为实验协议的一部分，而不是一个可忽略的软件细节。

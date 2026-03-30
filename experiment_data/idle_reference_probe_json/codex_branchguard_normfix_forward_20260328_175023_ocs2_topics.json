@@ -1,0 +1,140 @@
+{
+  "bridge_cmd_vel_snapshot": {
+    "available": true,
+    "last": {
+      "angular_z": 0.0,
+      "linear_x": 0.03,
+      "linear_y": 0.0
+    },
+    "max_abs_angular_z": 0.0,
+    "max_abs_linear_x": 0.03,
+    "max_abs_linear_y": 0.0
+  },
+  "first_message_after_start_sec": {
+    "bridge_cmd_vel": 3.760065548995044,
+    "mode_schedule": 0.17853124599787407,
+    "solver_diagnostics": 2.1048939769971184,
+    "target": 2.137540476003778
+  },
+  "last_message_after_start_sec": {
+    "bridge_cmd_vel": 11.958825955996872,
+    "mode_schedule": 11.078114189993357,
+    "solver_diagnostics": 11.801964329992188,
+    "target": 11.788579247993766
+  },
+  "message_counts": {
+    "bridge_cmd_vel": 52,
+    "mode_schedule": 12,
+    "solver_diagnostics": 2538,
+    "target": 194
+  },
+  "mode_schedule_snapshot": {
+    "available": true,
+    "event_times": [
+      0.0,
+      0.35,
+      0.7
+    ],
+    "mode_sequence": [
+      21,
+      42
+    ],
+    "moving_cycle_detected": true,
+    "sequence_length": 2,
+    "transition_count": 1,
+    "unique_modes": [
+      21,
+      42
+    ]
+  },
+  "publishers": {
+    "/hexbot_mpc/input/cmd_vel": 1,
+    "/hexbot_mpc_mode_schedule": 0,
+    "/hexbot_mpc_solver_diagnostics": 0,
+    "/hexbot_mpc_target": 0
+  },
+  "ready": true,
+  "solver_capture_snapshot": {
+    "available": true,
+    "max_level": 0,
+    "status": [
+      {
+        "hardware_id": "hexbot",
+        "level": 0,
+        "message": "ok",
+        "name": "hexbot/mpc_solver",
+        "values": {
+          "ddp_iterations_used": "2538",
+          "perf_cost": "2684.312388",
+          "perf_dual_feas_sse": "0.000000",
+          "perf_dynamics_violation_sse": "0.000000",
+          "perf_eq_constraints_sse": "0.000108",
+          "perf_eq_lagrangian": "0.000000",
+          "perf_ineq_constraints_sse": "19.674098",
+          "perf_ineq_lagrangian": "0.000000",
+          "perf_merit": "2684.312388",
+          "solve_time_avg_ms": "3.671273",
+          "solve_time_last_ms": "4.283704",
+          "solve_time_max_ms": "9.031487",
+          "solve_time_samples": "2538"
+        }
+      }
+    ]
+  },
+  "target_snapshot": {
+    "available": true,
+    "base_pose_offset": 6,
+    "delta_body": {
+      "forward_m": 0.0035000001662757333,
+      "lateral_m": -1.0692780372207689e-10
+    },
+    "delta_world": {
+      "x": 0.0034999987110495567,
+      "y": 3.191642463207245e-06,
+      "yaw": 0.0
+    },
+    "goal_pose": {
+      "pitch": 0.0,
+      "roll": 0.0,
+      "x": 0.008652657270431519,
+      "y": -0.0151952113956213,
+      "yaw": 0.0009119284804910421,
+      "z": -0.03414370119571686
+    },
+    "horizon_sec": 0.34999999999999964,
+    "input_count": 4,
+    "input_dims": [
+      36,
+      36,
+      36,
+      36
+    ],
+    "start_pose": {
+      "pitch": 0.0,
+      "roll": 0.0,
+      "x": 0.005152658559381962,
+      "y": -0.015198403038084507,
+      "yaw": 0.0009119284804910421,
+      "z": -0.03414370119571686
+    },
+    "state_count": 4,
+    "state_dims": [
+      30,
+      30,
+      30,
+      30
+    ],
+    "time_trajectory": [
+      6.000000313000015,
+      6.1166669796666815,
+      6.233333646333349,
+      6.350000313000015
+    ]
+  },
+  "topics": {
+    "bridge_cmd_vel": "/hexbot_mpc/input/cmd_vel",
+    "mode_schedule": "/hexbot_mpc_mode_schedule",
+    "solver_diagnostics": "/hexbot_mpc_solver_diagnostics",
+    "target": "/hexbot_mpc_target"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "clean": true,
+  "failures": [],
+  "odom": {
+    "available": true,
+    "received": 32,
+    "position_xyz_m": [
+      0.0044012176663566485,
+      -0.0011443502792816266,
+      -0.026059457900098372
+    ],
+    "rpy_rad": [
+      0.01871697017176486,
+      0.028374855516868507,
+      -0.0008041993788944121
+    ],
+    "linear_xyz_mps": [
+      -0.004025974310934544,
+      0.0016311777289956808,
+      0.0
+    ],
+    "angular_xyz_radps": [
+      0.0,
+      0.0,
+      0.004559649620205164
+    ]
+  },
+  "joint_states": {
+    "available": true,
+    "received": 79,
+    "joint_count": 18,
+    "max_abs_velocity_rad_s": 0.5365,
+    "reference_file": "/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/ocs2_hexbot_legged_robot/config/command/reference.info",
+    "max_abs_position_error_rad": 0.1936,
+    "missing_expected_joints": [],
+    "top_position_diffs": [
+      {
+        "joint": "femur_joint_RF",
+        "expected_rad": -0.199,
+        "actual_rad": -0.3926,
+        "abs_error_rad": 0.1936
+      },
+      {
+        "joint": "tarsus_joint_RF",
+        "expected_rad": 0.2159,
+        "actual_rad": 0.4039,
+        "abs_error_rad": 0.18799999999999997
+      },
+      {
+        "joint": "femur_joint_RM",
+        "expected_rad": -0.1672,
+        "actual_rad": -0.3409,
+        "abs_error_rad": 0.1737
+      },
+      {
+        "joint": "tarsus_joint_RM",
+        "expected_rad": 0.1817,
+        "actual_rad": 0.3494,
+        "abs_error_rad": 0.1677
+      },
+      {
+        "joint": "femur_joint_RR",
+        "expected_rad": -0.1308,
+        "actual_rad": -0.2738,
+        "abs_error_rad": 0.143
+      },
+      {
+        "joint": "tarsus_joint_RR",
+        "expected_rad": 0.1414,
+        "actual_rad": 0.2805,
+        "abs_error_rad": 0.13910000000000003
+      }
+    ]
+  },
+  "thresholds": {
+    "min_base_z": null,
+    "max_abs_roll_rad": 0.35,
+    "max_abs_pitch_rad": 0.35,
+    "max_joint_speed_rad_s": 2.0,
+    "max_joint_position_error_rad": 0.45
+  }
+}

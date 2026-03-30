@@ -1,0 +1,60 @@
+{
+  "expected_joint_count": 18,
+  "failures": [
+    "/joint_states has no discovered publishers",
+    "/odom has no discovered publishers",
+    "/clock has no discovered publishers"
+  ],
+  "min_messages": 1,
+  "probe_duration_sec": 2.0,
+  "ready": false,
+  "topics": {
+    "/clock": {
+      "last_sim_time_sec": null,
+      "last_wall_age_sec": null,
+      "last_wall_time_sec": null,
+      "publishers": 0,
+      "received": 0,
+      "required": true
+    },
+    "/cmd_vel": {
+      "last_angular_z": null,
+      "last_linear_x": null,
+      "last_linear_y": null,
+      "last_wall_age_sec": null,
+      "last_wall_time_sec": null,
+      "publishers": 0,
+      "received": 0,
+      "required": false
+    },
+    "/imu": {
+      "last_frame_id": "",
+      "last_header_stamp_sec": null,
+      "last_wall_age_sec": null,
+      "last_wall_time_sec": null,
+      "publishers": 0,
+      "received": 0,
+      "required": false
+    },
+    "/joint_states": {
+      "last_header_stamp_sec": null,
+      "last_joint_name_count": 0,
+      "last_position_count": 0,
+      "last_wall_age_sec": null,
+      "last_wall_time_sec": null,
+      "publishers": 0,
+      "received": 0,
+      "required": true
+    },
+    "/odom": {
+      "last_child_frame_id": "",
+      "last_frame_id": "",
+      "last_header_stamp_sec": null,
+      "last_wall_age_sec": null,
+      "last_wall_time_sec": null,
+      "publishers": 0,
+      "received": 0,
+      "required": true
+    }
+  }
+}

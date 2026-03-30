@@ -1,0 +1,72 @@
+release:
+  branch: release/paper_icra_v1
+  tag: v1.0-paper-results
+
+workspace:
+  root: /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws
+
+host:
+  os: Ubuntu 22.04.5 LTS
+  python: 3.10.12
+
+container:
+  image: osrf/ros:jazzy-desktop
+  os: Ubuntu 24.04 (noble)
+  ros2_distribution: jazzy
+  setup_script: /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/container_setup_env.sh
+  required_apt_packages:
+    - build-essential
+    - cmake
+    - git
+    - python3-dev
+    - ros-jazzy-pinocchio
+    - ros-jazzy-eigen3-cmake-module
+    - ros-jazzy-hpp-fcl
+    - ros-jazzy-eigenpy
+    - ros-jazzy-grid-map
+    - ros-jazzy-xacro
+    - ros-jazzy-robot-state-publisher
+    - ros-jazzy-rviz2
+    - pybind11-dev
+    - libeigen3-dev
+    - libboost-all-dev
+    - libglpk-dev
+    - libgmp-dev
+    - libmpfr-dev
+    - libcgal-dev
+    - libopencv-dev
+    - libpcl-dev
+    - liboctomap-dev
+    - liburdfdom-dev
+    - python3-colcon-common-extensions
+    - python3-rosdep
+
+simulation:
+  isaac_sim_version: 4.5.0
+  runtime_control: /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_description_ros2/isaac/isaac_runtime_control.py
+  note: The paper evaluation uses Isaac Sim world-frame reprojection onto the base_link forward axis.
+
+upstream:
+  repository: https://github.com/Luky-hui/my-project.git
+  workspace_commit_before_release_commit: fcbecce71cc1043001ce539845e501d2520ddaa2
+  ocs2_source_mode: local workspace plus staged upstream mirror under .tmp_upstream/ocs2_ros2/ocs2-ros2
+
+python:
+  requirements_file: /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/requirements_paper.txt
+  required_packages:
+    matplotlib: 3.5.1
+    numpy: 1.21.5
+    scipy: 1.8.0
+    PyYAML: 5.4.1
+  optional_packages:
+    seaborn: not required
+
+paper_artifacts:
+  batch_results_root: /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_locomotion_mpc/results/batch_paper_forward_v1
+  analysis_csv:
+    - analysis/hexbot_metrics_per_run.csv
+    - analysis/hexbot_metrics_group_summary.csv
+  figures:
+    - analysis/figures/figure1_forward_displacement_and_tracking_rmse.pdf
+    - analysis/figures/figure2_guard_and_max_still_boxplots.pdf
+    - analysis/figures/figure3_mpc_solve_time_with_realtime_budget.pdf

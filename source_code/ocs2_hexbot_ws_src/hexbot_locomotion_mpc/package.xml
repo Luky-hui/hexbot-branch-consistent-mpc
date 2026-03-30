@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>hexbot_locomotion_mpc</name>
+  <version>0.1.0</version>
+  <description>Hexbot MPC/WBC bridge package for recovering the ROS 2 integration boundary around OCS2-style backends.</description>
+
+  <maintainer email="devnull@example.com">Workspace Maintainer</maintainer>
+  <license>BSD-3-Clause</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>diagnostic_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>hexbot_description_ros2</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>rosgraph_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

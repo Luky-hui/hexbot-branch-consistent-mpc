@@ -1,0 +1,68 @@
+{
+  "bridge_cmd_vel_snapshot": {
+    "available": true,
+    "last": {
+      "angular_z": 0.0,
+      "linear_x": 0.03,
+      "linear_y": 0.0
+    },
+    "max_abs_angular_z": 0.0,
+    "max_abs_linear_x": 0.03,
+    "max_abs_linear_y": 0.0
+  },
+  "first_message_after_start_sec": {
+    "bridge_cmd_vel": 3.7570557930012,
+    "mode_schedule": 0.21683150700118858,
+    "solver_diagnostics": null,
+    "target": null
+  },
+  "last_message_after_start_sec": {
+    "bridge_cmd_vel": 9.575196596997557,
+    "mode_schedule": 11.616314640006749,
+    "solver_diagnostics": null,
+    "target": null
+  },
+  "message_counts": {
+    "bridge_cmd_vel": 46,
+    "mode_schedule": 13,
+    "solver_diagnostics": 0,
+    "target": 0
+  },
+  "mode_schedule_snapshot": {
+    "available": true,
+    "event_times": [
+      0.0,
+      0.5
+    ],
+    "mode_sequence": [
+      63
+    ],
+    "moving_cycle_detected": false,
+    "sequence_length": 1,
+    "transition_count": 0,
+    "unique_modes": [
+      63
+    ]
+  },
+  "publishers": {
+    "/hexbot_mpc/input/cmd_vel": 0,
+    "/hexbot_mpc_mode_schedule": 0,
+    "/hexbot_mpc_solver_diagnostics": 0,
+    "/hexbot_mpc_target": 0
+  },
+  "ready": false,
+  "solver_capture_snapshot": {
+    "available": false,
+    "status": []
+  },
+  "target_snapshot": {
+    "available": false,
+    "base_pose_offset": 6
+  },
+  "topics": {
+    "bridge_cmd_vel": "/hexbot_mpc/input/cmd_vel",
+    "mode_schedule": "/hexbot_mpc_mode_schedule",
+    "solver_diagnostics": "/hexbot_mpc_solver_diagnostics",
+    "target": "/hexbot_mpc_target"
+  }
+}

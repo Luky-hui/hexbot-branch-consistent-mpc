@@ -1,0 +1,140 @@
+
+digraph MethodologyOverview {
+    graph [
+        rankdir=LR,
+        compound=true,
+        newrank=true,
+        splines=spline,
+        overlap=false,
+        nodesep="1.0",
+        ranksep="1.5",
+        pad="0.25",
+        margin="0.05",
+        bgcolor="white",
+        fontname="Helvetica"
+    ];
+    node [
+        shape=box,
+        style="rounded,filled",
+        fixedsize=false,
+        fontname="Helvetica",
+        fontsize=11,
+        penwidth=1.8,
+        margin="0.12,0.08",
+        color="#475569",
+        fillcolor="white"
+    ];
+    edge [
+        fontname="Helvetica",
+        fontsize=10,
+        color="#475569",
+        penwidth=2.0,
+        arrowsize=0.8
+    ];
+
+    subgraph cluster_pipeline {
+        label="Pipeline";
+        color="#2563eb";
+        fillcolor="#dbeafe";
+        fontcolor="#2563eb";
+        style="rounded,filled";
+        nodesep="0.8";
+        ranksep="0.95";
+        margin="18";
+
+        cmd_vel [label="cmd_vel\nvelocity command", color="#2563eb", fillcolor="white", width="1.6", height="0.8"];
+        target_gen [label="Target Generator\ngait + moving goal reference", color="#f59e0b", fillcolor="white", width="2.0", height="0.9"];
+        ocs2_solver [label="OCS2 Solver\noptimal control solve", color="#f59e0b", fillcolor="white", width="1.8", height="0.9"];
+        mrt [label="MRT\npolicy rollout and dispatch", color="#475569", fillcolor="white", width="1.8", height="0.9"];
+        isaac [label="Isaac Sim\nstate feedback and execution", color="#16a34a", fillcolor="white", width="2.0", height="0.9"];
+        pipeline_note [label="Nominal closed-loop flow\nROS 2 target generation, OCS2 policy update,\nMRT rollout, and Isaac Sim feedback remain intact.", color="#2563eb", fillcolor="white", width="4.1", height="1.0"];
+
+        { rank=same; cmd_vel; target_gen; ocs2_solver; }
+        { rank=same; mrt; isaac; }
+
+        cmd_vel -> target_gen;
+        target_gen -> ocs2_solver;
+        ocs2_solver -> mrt;
+        mrt -> isaac;
+        isaac -> pipeline_note [style=invis, weight=4];
+        isaac -> cmd_vel [color="#16a34a", xlabel="state feedback", minlen="2"];
+    }
+
+    subgraph cluster_sqp {
+        label="SQP Failure Path";
+        color="#dc2626";
+        fillcolor="#fee2e2";
+        fontcolor="#dc2626";
+        style="rounded,filled";
+        nodesep="1.0";
+        ranksep="1.1";
+        margin="18";
+
+        sqp_solver [label="SQP Solver\nlocal linearization follows warm start", color="#dc2626", fillcolor="white", width="2.2", height="0.95"];
+        branch_constraint [label="Branch Constraint\npresent in problem definition", color="#f59e0b", fillcolor="white", width="1.9", height="0.95"];
+        pathological [label="Pathological Commands\nwrong branch remains numerically executable", color="#dc2626", fillcolor="white", width="2.6", height="0.95"];
+        runtime_guard [label="Runtime Guard\npost hoc interception", color="#dc2626", fillcolor="white", width="1.9", height="0.95"];
+        sqp_note [label="Forbidden branch stays solver-feasible.\nThe runtime layer must absorb branch errors because\nSQP does not reliably remove the pathological solution path.", color="#dc2626", fillcolor="white", width="4.5", height="1.05"];
+
+        { rank=same; sqp_solver; branch_constraint; }
+        { rank=same; pathological; runtime_guard; }
+
+        sqp_solver -> branch_constraint [
+            style=dashed,
+            color="#dc2626",
+            penwidth=2.3,
+            xlabel="constraint bypassed\nin active SQP path",
+            minlen="2"
+        ];
+        sqp_solver -> pathological [color="#dc2626", penwidth=2.2, minlen="2"];
+        pathological -> runtime_guard [color="#dc2626", penwidth=2.2, minlen="2"];
+        runtime_guard -> sqp_note [style=invis, weight=4];
+    }
+
+    subgraph cluster_ipm {
+        label="IPM Fix Path";
+        color="#16a34a";
+        fillcolor="#dcfce7";
+        fontcolor="#16a34a";
+        style="rounded,filled";
+        nodesep="1.0";
+        ranksep="1.1";
+        margin="18";
+
+        ipm_solver [label="IPM Solver\nprimal-dual inequality handling", color="#16a34a", fillcolor="white", width="2.1", height="0.95"];
+        safe_commands [label="Safe Commands\nwalking policy reaches Isaac Sim directly", color="#16a34a", fillcolor="white", width="2.3", height="0.95"];
+        ipm_note [label="Forbidden branch is excluded inside the solver.\nIPM keeps the constraint active before command publication,\nso runtime guarding is no longer the primary repair mechanism.", color="#16a34a", fillcolor="white", width="4.6", height="1.05"];
+
+        subgraph cluster_feasible {
+            label="Feasible Search Set\nshaped by TarsusBranchConstraint";
+            color="#16a34a";
+            fontcolor="#16a34a";
+            style="rounded";
+            nodesep="0.8";
+            ranksep="0.8";
+            margin="16";
+
+            allowed_node [label=<
+                <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="8" COLOR="#16a34a">
+                    <TR><TD BGCOLOR="#dcfce7"><B>allowed</B><BR/>branch</TD></TR>
+                </TABLE>
+            >, shape=plain];
+
+            forbidden_node [label=<
+                <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="8" COLOR="#dc2626">
+                    <TR><TD BGCOLOR="white"><B>forbidden</B><BR/>branch<BR/><FONT COLOR="#dc2626"><B>X</B></FONT></TD></TR>
+                </TABLE>
+            >, shape=plain];
+
+            { rank=same; allowed_node; forbidden_node; }
+            allowed_node -> forbidden_node [style=invis, minlen="1"];
+        }
+
+        ipm_solver -> allowed_node [color="#16a34a", penwidth=2.2, minlen="2"];
+        allowed_node -> safe_commands [color="#16a34a", penwidth=2.2, minlen="2"];
+        safe_commands -> ipm_note [style=invis, weight=4];
+    }
+
+    isaac -> sqp_solver [style=invis, weight=20];
+    runtime_guard -> ipm_solver [style=invis, weight=20];
+}

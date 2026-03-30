@@ -1,0 +1,96 @@
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.98\textwidth]{methodology_overview.pdf}
+    \caption{
+    Overview of the repaired ROS~2--Isaac Sim closed-loop control chain. Left: the nominal pipeline maps \texttt{cmd\_vel} through target generation, OCS2 optimization, policy rollout, and simulation feedback. Middle: under the previous SQP path, the branch-consistency condition can be bypassed along the active local solve trajectory, allowing pathological wrong-branch commands to escape the optimizer and forcing the runtime guard to act as a post hoc repair layer. Right: under the proposed IPM formulation, \emph{TarsusBranchConstraint} shapes the feasible search set inside the solver, so the forbidden branch is excluded before command publication. The figure therefore localizes the contribution of this paper to a specific causal link in the control architecture: the repair occurs inside the solver, not in the downstream runtime filter.}
+    \label{fig:methodology_overview}
+\end{figure*}
+
+\subsection{Optimal Control Formulation}
+
+Figure~\ref{fig:methodology_overview} summarizes the system-level location of the failure and the corresponding repair introduced in this paper. The key distinction is not merely a change of numerical backend, but a shift in where physical branch admissibility is enforced within the closed-loop architecture.
+
+Let $x_k \in \mathbb{R}^{n_x}$ denote the state at stage $k$, including the floating-base quantities and actuated joint coordinates, and let $u_k \in \mathbb{R}^{n_u}$ denote the input, including actuator commands and contact-related decision variables. Over a horizon of length $N$, the locomotion MPC problem is written as
+\begin{align}
+\min_{\{x_k,u_k\}} \quad & \sum_{k=0}^{N-1} \ell(x_k,u_k) + \Phi(x_N), \\
+\text{s.t.} \quad & x_{k+1} = f(x_k,u_k), \\
+& g_{\mathrm{eq}}(x_k,u_k) = 0, \\
+& g_{\mathrm{ineq}}(x_k,u_k) \le 0, \\
+& x_0 = \hat{x},
+\end{align}
+where $\ell(\cdot)$ and $\Phi(\cdot)$ denote the stage and terminal costs, respectively, $f(\cdot)$ is the discretized dynamics model, and $\hat{x}$ is the latest measured state.
+
+The issue addressed in this paper does not originate from gait design, tracking weights, or runtime guard thresholds. Instead, it arises because the original optimization problem did not sufficiently encode the physical left/right branch admissibility of the tarsus joints during forward walking. Consequently, the optimizer could converge to a task-space-nearby but mechanism-inconsistent local minimum.
+
+\subsection{Why the Previous SQP Path Failed}
+
+In the original controller path, the branch-consistency condition was not effectively active in the solver trajectory that produced the walking commands. This is especially problematic in single-iteration or warm-start-dominated SQP schemes, where the local subproblem is constructed around a previously feasible or nearly feasible iterate. In such settings, the optimizer may follow the wrong $\pi$-shifted branch if that branch remains locally attractive in the linearized neighborhood.
+
+A generic SQP subproblem can be viewed as
+\begin{align}
+\min_{\Delta z} \quad \frac{1}{2}\Delta z^\top H \Delta z + g^\top \Delta z + \rho\,\varphi\!\left(h(z^{(w)}) + J_h(z^{(w)})\Delta z\right),
+\end{align}
+where $z$ stacks the decision variables, $z^{(w)}$ is the warm start, $H$ and $g$ define the quadratic model, and $\varphi(\cdot)$ denotes a penalty or merit-function contribution associated with inequality residuals. If the inequality is not enforced as an active hard constraint in the numerical subproblem, then the forbidden branch is not truly removed from the search space. Instead, it is merely discouraged. For highly nonlinear, redundant legged systems, this distinction is decisive.
+
+Our diagnosis showed that this issue was not caused by an ill-conditioned branch Jacobian. The tarsus branch constraint is affine in the actuated joint coordinates, and its Jacobian is constant with rows equal to $\pm e_i^\top$. Hence, the failure mode is not a singularity of the constraint itself, but an optimization-path issue: the constraint was not behaviorally binding along the walking trajectory produced by the previous SQP backend.
+
+\subsection{Tarsus Branch-Consistency Constraint}
+
+Let $q_k$ denote the actuated joint-position block extracted from the state $x_k$, and let $\mathcal{R}$ and $\mathcal{L}$ denote the index sets of right-side and left-side tarsus joints, respectively. We enforce a margin $m>0$ such that
+\begin{align}
+q_{i,k} &\ge m, \qquad i \in \mathcal{R}, \\
+q_{j,k} &\le -m, \qquad j \in \mathcal{L}.
+\end{align}
+Equivalently, the branch admissibility can be written as the affine inequality
+\begin{align}
+h_{\mathrm{branch}}(x_k) =
+\begin{bmatrix}
+m\mathbf{1} - S_{\mathcal{R}} E_q x_k \\
+S_{\mathcal{L}} E_q x_k + m\mathbf{1}
+\end{bmatrix}
+\le 0,
+\end{align}
+where $E_q$ selects the actuated joint-position block from the full state vector, and $S_{\mathcal{R}}$, $S_{\mathcal{L}}$ are row-selection matrices for the right and left tarsus joints.
+
+This formulation has two important properties. First, it directly encodes the physical branch identity of the mechanism. Second, because it is affine, its Jacobian is constant and well behaved:
+\begin{align}
+\nabla_x h_{\mathrm{branch}}(x_k) =
+\begin{bmatrix}
+- S_{\mathcal{R}} E_q \\
+\phantom{-} S_{\mathcal{L}} E_q
+\end{bmatrix}.
+\end{align}
+Therefore, if the solver respects this inequality, the forbidden branch is removed from the feasible set without introducing a difficult nonlinear singularity.
+
+\subsection{IPM-Based Constraint Enforcement}
+
+To ensure that branch consistency remains active during optimization, we solve the MPC problem using an Interior-Point Method. Introducing slack variables $s_k > 0$ for the inequality constraints, the constrained problem is written as
+\begin{align}
+h_{\mathrm{branch}}(x_k) + s_k = 0, \qquad s_k > 0,
+\end{align}
+and the barrier-augmented objective becomes
+\begin{align}
+\min_{\{x_k,u_k,s_k\}} \quad
+\sum_{k=0}^{N-1} \ell(x_k,u_k) + \Phi(x_N)
+- \mu \sum_{k=0}^{N} \sum_{i} \log s_{k,i},
+\end{align}
+with barrier parameter $\mu > 0$.
+
+This formulation changes the computational role of the branch constraint. The constraint is no longer a penalty-like preference layered on top of the objective; it becomes part of the primal-dual feasibility conditions solved at every iteration. Under standard IPM assumptions, if the problem is feasible and the solver converges to a KKT point satisfying the stage-wise inequalities, then each optimized tarsus command necessarily lies on the admissible branch.
+
+We may therefore state the following mechanism-level guarantee.
+
+\textbf{Proposition 1 (Branch Safety).}
+\emph{Assume that the MPC problem with $h_{\mathrm{branch}}(x_k)\le 0$ is feasible and that the IPM solver returns a solution satisfying these inequalities at all stages. Then every right-side tarsus satisfies $q_{i,k}\ge m$ and every left-side tarsus satisfies $q_{j,k}\le -m$ for all predicted stages $k$. Consequently, the forbidden tarsus branch is never commanded by the optimizer.}
+
+The proof is immediate because the inequality is affine and directly equivalent to the desired sign conditions. Importantly, this guarantee is solver-level rather than runtime-level: it certifies exclusion of the forbidden branch within the optimization domain itself. In that sense, the method provides \emph{provable safety with respect to branch admissibility}. While this does not by itself guarantee full-system safety under all terrain and contact uncertainties, it establishes a rigorous safety property for one of the key failure modes observed in high-dimensional hexapod locomotion.
+
+\subsection{Evaluation Pipeline}
+
+The released implementation evaluates locomotion in Isaac Sim closed loop using repeated trials for two conditions: the proposed IPM-based controller with branch consistency enabled, and an SQP baseline with the branch constraint disabled. Because the Hexbot asset spawns approximately facing world $-X$, forward displacement is measured by projecting the Isaac world displacement onto the robot's \texttt{base\_link} forward axis rather than using raw world-frame $x$. This yields an evaluation metric that is physically aligned with commanded forward motion and avoids a misleading coordinate-sign artifact.
+
+\subsection{Implementation and Reproducibility Note}
+
+A critical engineering condition for reproducing the reported real-time behavior is that the active Jazzy runtime be compiled with optimization enabled, e.g., \texttt{RelWithDebInfo} or \texttt{Release}. During our implementation audit, rebuilding the runtime binaries without optimization flags increased the IPM average solve time from approximately 4.6~ms to 96~ms in an otherwise comparable replay, which reduced the effective closed-loop update rate from roughly 200~Hz to about 9~Hz and caused forward locomotion to collapse into near-stagnation. Under this degraded build, the forward target horizon remained present, but the controller could no longer sustain continuous walking because the solver throughput itself had become the bottleneck.
+
+This observation does not alter the algorithmic contribution of the paper, but it is a necessary reproducibility condition for interpreting the experiments correctly. In particular, conclusions about branch-consistency enforcement, locomotion persistence, and real-time feasibility should only be drawn from optimized binaries. We therefore treat build optimization as part of the experimental protocol rather than as an incidental software detail.

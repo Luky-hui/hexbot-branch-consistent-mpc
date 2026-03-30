@@ -1,0 +1,327 @@
+{
+  "backend_vs_runtime_joint_command": {
+    "available": true,
+    "left": "runtime",
+    "max_abs_diff_rad": 0.09680977463722229,
+    "missing_from_left": [],
+    "missing_from_right": [],
+    "right": "backend",
+    "top_diffs": [
+      {
+        "abs_diff_rad": 0.09680977463722229,
+        "backend": -0.4353201687335968,
+        "joint": "tarsus_joint_LF",
+        "runtime": -0.3385103940963745
+      },
+      {
+        "abs_diff_rad": 0.08496570587158203,
+        "backend": 0.37596914172172546,
+        "joint": "tarsus_joint_RM",
+        "runtime": 0.29100343585014343
+      },
+      {
+        "abs_diff_rad": 0.07337802648544312,
+        "backend": -0.36644819378852844,
+        "joint": "femur_joint_RM",
+        "runtime": -0.2930701673030853
+      },
+      {
+        "abs_diff_rad": 0.060127198696136475,
+        "backend": 0.6240167021751404,
+        "joint": "tarsus_joint_RF",
+        "runtime": 0.5638895034790039
+      },
+      {
+        "abs_diff_rad": 0.04656529426574707,
+        "backend": 0.1771049052476883,
+        "joint": "femur_joint_LR",
+        "runtime": 0.13053961098194122
+      },
+      {
+        "abs_diff_rad": 0.0458473265171051,
+        "backend": 0.3079812228679657,
+        "joint": "femur_joint_LF",
+        "runtime": 0.2621338963508606
+      }
+    ]
+  },
+  "command_state_tracking": {
+    "avg_of_max_abs_diff_rad": 0.5198608672869615,
+    "last_max_abs_diff_rad": 0.32808960590362546,
+    "max_of_max_abs_diff_rad": 0.7524554335459553,
+    "samples_after_command_start": 5330
+  },
+  "command_vs_actual_joint_state": {
+    "available": true,
+    "left": "command",
+    "max_abs_diff_rad": 0.32808960590362546,
+    "missing_from_left": [],
+    "missing_from_right": [],
+    "right": "state",
+    "top_diffs": [
+      {
+        "abs_diff_rad": 0.32808960590362546,
+        "command": -0.3385103940963745,
+        "joint": "tarsus_joint_LF",
+        "state": -0.6666
+      },
+      {
+        "abs_diff_rad": 0.30199656414985654,
+        "command": 0.29100343585014343,
+        "joint": "tarsus_joint_RM",
+        "state": 0.593
+      },
+      {
+        "abs_diff_rad": 0.24172983269691473,
+        "command": -0.2930701673030853,
+        "joint": "femur_joint_RM",
+        "state": -0.5348
+      },
+      {
+        "abs_diff_rad": 0.21141049652099608,
+        "command": 0.5638895034790039,
+        "joint": "tarsus_joint_RF",
+        "state": 0.7753
+      },
+      {
+        "abs_diff_rad": 0.18275763676166534,
+        "command": -0.20334236323833466,
+        "joint": "tarsus_joint_LR",
+        "state": -0.3861
+      },
+      {
+        "abs_diff_rad": 0.17716038901805875,
+        "command": 0.13053961098194122,
+        "joint": "femur_joint_LR",
+        "state": 0.3077
+      }
+    ]
+  },
+  "expected_vs_actual_joint_state": {
+    "available": true,
+    "left": "expected",
+    "max_abs_diff_rad": 0.5594,
+    "missing_from_left": [],
+    "missing_from_right": [],
+    "right": "state",
+    "top_diffs": [
+      {
+        "abs_diff_rad": 0.5594,
+        "expected": 0.2159,
+        "joint": "tarsus_joint_RF",
+        "state": 0.7753
+      },
+      {
+        "abs_diff_rad": 0.4718,
+        "expected": -0.1948,
+        "joint": "tarsus_joint_LF",
+        "state": -0.6666
+      },
+      {
+        "abs_diff_rad": 0.4113,
+        "expected": 0.1817,
+        "joint": "tarsus_joint_RM",
+        "state": 0.593
+      },
+      {
+        "abs_diff_rad": 0.36760000000000004,
+        "expected": -0.1672,
+        "joint": "femur_joint_RM",
+        "state": -0.5348
+      },
+      {
+        "abs_diff_rad": 0.33840000000000003,
+        "expected": -0.1308,
+        "joint": "femur_joint_RR",
+        "state": -0.4692
+      },
+      {
+        "abs_diff_rad": 0.3236,
+        "expected": 0.1414,
+        "joint": "tarsus_joint_RR",
+        "state": 0.465
+      }
+    ]
+  },
+  "expected_vs_backend_joint_command": {
+    "available": true,
+    "left": "expected",
+    "max_abs_diff_rad": 0.4081167021751404,
+    "missing_from_left": [],
+    "missing_from_right": [],
+    "right": "backend",
+    "top_diffs": [
+      {
+        "abs_diff_rad": 0.4081167021751404,
+        "backend": 0.6240167021751404,
+        "expected": 0.2159,
+        "joint": "tarsus_joint_RF"
+      },
+      {
+        "abs_diff_rad": 0.3624800919532776,
+        "backend": -0.5175800919532776,
+        "expected": -0.1551,
+        "joint": "tarsus_joint_LM"
+      },
+      {
+        "abs_diff_rad": 0.3587725554466248,
+        "backend": 0.5001725554466248,
+        "expected": 0.1414,
+        "joint": "tarsus_joint_RR"
+      },
+      {
+        "abs_diff_rad": 0.3386273989677429,
+        "backend": -0.5376273989677429,
+        "expected": -0.199,
+        "joint": "femur_joint_RF"
+      },
+      {
+        "abs_diff_rad": 0.2670082239627838,
+        "backend": -0.3978082239627838,
+        "expected": -0.1308,
+        "joint": "femur_joint_RR"
+      },
+      {
+        "abs_diff_rad": 0.24709273462295533,
+        "backend": 0.3832927346229553,
+        "expected": 0.1362,
+        "joint": "femur_joint_LM"
+      }
+    ]
+  },
+  "expected_vs_runtime_joint_command": {
+    "available": true,
+    "left": "expected",
+    "max_abs_diff_rad": 0.36908785448074344,
+    "missing_from_left": [],
+    "missing_from_right": [],
+    "right": "runtime",
+    "top_diffs": [
+      {
+        "abs_diff_rad": 0.36908785448074344,
+        "expected": 0.1414,
+        "joint": "tarsus_joint_RR",
+        "runtime": 0.5104878544807434
+      },
+      {
+        "abs_diff_rad": 0.3538198350906372,
+        "expected": -0.1551,
+        "joint": "tarsus_joint_LM",
+        "runtime": -0.5089198350906372
+      },
+      {
+        "abs_diff_rad": 0.3479895034790039,
+        "expected": 0.2159,
+        "joint": "tarsus_joint_RF",
+        "runtime": 0.5638895034790039
+      },
+      {
+        "abs_diff_rad": 0.3248059163093567,
+        "expected": -0.199,
+        "joint": "femur_joint_RF",
+        "runtime": -0.5238059163093567
+      },
+      {
+        "abs_diff_rad": 0.2398371784210205,
+        "expected": -0.1308,
+        "joint": "femur_joint_RR",
+        "runtime": -0.3706371784210205
+      },
+      {
+        "abs_diff_rad": 0.23421176183223724,
+        "expected": 0.002,
+        "joint": "coxa_joint_LM",
+        "runtime": 0.23621176183223724
+      }
+    ]
+  },
+  "failures": [],
+  "finiteness": {
+    "backend_joint_command_nonfinite_messages": 0,
+    "joint_state_nonfinite_messages": 0,
+    "odom_nonfinite_messages": 0,
+    "runtime_joint_command_nonfinite_messages": 0
+  },
+  "joint_counts": {
+    "actual_last_joint_count": 18,
+    "backend_last_joint_count": 18,
+    "expected_joint_count": 18,
+    "runtime_last_joint_count": 18
+  },
+  "latency": {
+    "backend_first_message_after_command_start_sec": 2.1576267789996564,
+    "runtime_first_message_after_command_start_sec": 0.001198724999994738
+  },
+  "message_counts": {
+    "backend_joint_command_after_command_start": 3479,
+    "backend_joint_command_total": 3479,
+    "clock": 1021,
+    "joint_state_after_command_start": 1012,
+    "joint_state_total": 1084,
+    "odom_after_command_start": 1014,
+    "odom_total": 1086,
+    "runtime_joint_command_after_command_start": 4318,
+    "runtime_joint_command_total": 4998,
+    "solver_diagnostics_total": 1689
+  },
+  "motion": {
+    "arc_expected_lateral_m": 0.00632901434045851,
+    "arc_lateral_excess_m": 0.020151655686235965,
+    "arc_radius_m": 2.28955341258239,
+    "delta_forward_m": 0.17012106377646952,
+    "delta_lateral_m": 0.026480670026694474,
+    "delta_x_m": 0.1701790120150805,
+    "delta_y_m": 0.026105671703125458,
+    "delta_yaw_rad": 0.07437170569520686,
+    "max_still_sec": 0.5000000259999524
+  },
+  "probe": {
+    "backend_joint_command_topic": "/hexbot_mpc/output/joint_command",
+    "clock_topic": "/clock",
+    "cmd_angular_z": 0.0,
+    "cmd_linear_x": 0.15,
+    "cmd_linear_y": 0.0,
+    "cmd_topic": "/cmd_vel",
+    "duration_sec": 20.0,
+    "joint_state_topic": "/joint_states",
+    "odom_topic": "/odom",
+    "reference_file": "/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/ocs2_hexbot_legged_robot/config/command/reference.info",
+    "require_backend": false,
+    "runtime_joint_command_topic": "/joint_command",
+    "solver_diagnostics_topic": "/hexbot_mpc_solver_diagnostics",
+    "use_sim_time": true
+  },
+  "publishers": {
+    "/clock": 1,
+    "/hexbot_mpc/output/joint_command": 0,
+    "/joint_command": 0,
+    "/odom": 1
+  },
+  "ready": true,
+  "solver_diagnostics": {
+    "last_status": [
+      {
+        "hardware_id": "hexbot",
+        "level": 0,
+        "message": "ok",
+        "name": "hexbot/mpc_solver",
+        "values": {
+          "ddp_iterations_used": "2815",
+          "perf_cost": "71.666661",
+          "perf_dual_feas_sse": "0.000000",
+          "perf_dynamics_violation_sse": "0.721569",
+          "perf_eq_constraints_sse": "0.195021",
+          "perf_eq_lagrangian": "0.000000",
+          "perf_ineq_constraints_sse": "0.000005",
+          "perf_ineq_lagrangian": "0.000000",
+          "perf_merit": "71.666661",
+          "solve_time_avg_ms": "4.665228",
+          "solve_time_last_ms": "3.827582",
+          "solve_time_max_ms": "12.901919",
+          "solve_time_samples": "2815"
+        }
+      }
+    ],
+    "max_level": 0
+  }
+}

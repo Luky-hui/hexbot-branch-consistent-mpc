@@ -1,0 +1,31 @@
+{
+  "batch_id": "batch_endurance_forward_v1",
+  "created_at": "2026-03-30T11:59:37",
+  "base_task_file": "/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/ocs2_hexbot_legged_robot/config/mpc/task.info",
+  "probe_script": "/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_locomotion_mpc/scripts/run_idle_reference_safety_probe.sh",
+  "log_dir": "/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/log_humble/idle_reference_probe",
+  "results_root": "/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_locomotion_mpc/results/batch_batch_endurance_forward_v1",
+  "runs_per_group": 5,
+  "duration_sec": 20.0,
+  "probe_duration_sec": 20.0,
+  "linear_x": 0.15,
+  "angular_z": 0.0,
+  "prime_duration_sec": 10.0,
+  "prime_max_final_error_rad": 0.45,
+  "translation_lookahead_sec": null,
+  "rotation_lookahead_sec": null,
+  "moving_goal_reference_file": null,
+  "auto_load_moving_goal_reference": true,
+  "use_observed_joint_target_while_moving": false,
+  "max_attempts": 2,
+  "groups": [
+    {
+      "name": "Proposed",
+      "solver": "ipm",
+      "enable_tarsus_branch_constraint": true,
+      "task_filename": "task_proposed_ipm_branch_on.info",
+      "group_slug": "proposed",
+      "task_file": "/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_locomotion_mpc/results/batch_batch_endurance_forward_v1/_generated_tasks/task_proposed_ipm_branch_on.info"
+    }
+  ]
+}

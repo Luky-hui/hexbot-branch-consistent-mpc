@@ -1,0 +1,52 @@
+targetDisplacementVelocity          0.150;
+targetRotationVelocity              0.600;
+
+comHeight                           0.126288
+
+defaultJointState
+{
+   (0,0)  -0.001214   ; coxa_joint_RR
+   (1,0)  -0.151285   ; femur_joint_RR
+   (2,0)   0.154577   ; tarsus_joint_RR
+   (3,0)  -0.008100   ; coxa_joint_RM
+   (4,0)  -0.265011   ; femur_joint_RM
+   (5,0)   0.272415   ; tarsus_joint_RM
+   (6,0)  -0.014000   ; coxa_joint_RF
+   (7,0)  -0.369978   ; femur_joint_RF
+   (8,0)   0.379485   ; tarsus_joint_RF
+   (9,0)   0.007377   ; coxa_joint_LR
+   (10,0)  0.100239   ; femur_joint_LR
+   (11,0) -0.119354   ; tarsus_joint_LR
+   (12,0)  0.003500   ; coxa_joint_LM
+   (13,0)  0.205302   ; femur_joint_LM
+   (14,0) -0.235103   ; tarsus_joint_LM
+   (15,0)  0.014000   ; coxa_joint_LF
+   (16,0)  0.318745   ; femur_joint_LF
+   (17,0) -0.351251   ; tarsus_joint_LF
+}
+
+initialModeSchedule
+{
+  modeSequence
+  {
+    [0]  STANCE
+    [1]  STANCE
+  }
+  eventTimes
+  {
+    [0]  0.5
+  }
+}
+
+defaultModeSequenceTemplate
+{
+  modeSequence
+  {
+    [0]  STANCE
+  }
+  switchingTimes
+  {
+    [0]  0.0
+    [1]  1.0
+  }
+}

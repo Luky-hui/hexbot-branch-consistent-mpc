@@ -1,0 +1,26 @@
+controller:
+  backend: ocs2_ros2
+  mode: mpc_wbc
+  input_topics:
+    cmd_vel: /cmd_vel
+    joint_states: /joint_states
+    imu: /imu
+    odom: /odom
+  bridge_topics:
+    cmd_vel: /hexbot_mpc/input/cmd_vel
+    joint_states: /hexbot_mpc/input/joint_states
+    imu: /hexbot_mpc/input/imu
+    odom: /hexbot_mpc/input/odom
+    joint_command_backend: /hexbot_mpc/output/joint_command
+    joint_command_runtime: /joint_command
+
+ocs2:
+  task_file: /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/ocs2_hexbot_legged_robot/config/mpc/task.info
+  reference_file: /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/ocs2_hexbot_legged_robot/config/command/reference.info
+  gait_file: /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/ocs2_hexbot_legged_robot/config/command/gait.info
+  urdf_path: /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_description_ros2/urdf/hexbot_isaac_rooted.urdf
+  seed_dir: /home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/hexbot_locomotion_mpc/config/ocs2_hexbot
+
+notes:
+  - Bridge defaults only; this file does not embed the OCS2 backend.
+  - Update absolute paths if the workspace root changes.

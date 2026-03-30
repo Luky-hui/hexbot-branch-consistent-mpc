@@ -1,0 +1,12 @@
+# Minimal Python packages required for the paper reproduction pipeline.
+# Core control compilation dependencies are installed inside the ROS 2 Jazzy
+# container via container_setup_env.sh and are documented in paper_environment.yml.
+
+matplotlib==3.5.1
+numpy==1.21.5
+scipy==1.8.0
+PyYAML==5.4.1
+
+# Optional. The plotting script falls back to native matplotlib if seaborn
+# is not available in the execution environment.
+# seaborn==0.12.2

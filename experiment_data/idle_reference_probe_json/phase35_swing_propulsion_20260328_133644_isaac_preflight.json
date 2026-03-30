@@ -1,0 +1,82 @@
+{
+  "clean": true,
+  "failures": [],
+  "odom": {
+    "available": true,
+    "received": 87,
+    "position_xyz_m": [
+      0.004338213280554283,
+      -0.0008938432571859551,
+      -0.026083939077347115
+    ],
+    "rpy_rad": [
+      0.01888123241195263,
+      0.02818365868055043,
+      -0.000502082111381993
+    ],
+    "linear_xyz_mps": [
+      -0.0039517078548669815,
+      0.0014538639225065708,
+      0.0
+    ],
+    "angular_xyz_radps": [
+      0.0,
+      0.0,
+      0.002634700620546937
+    ]
+  },
+  "joint_states": {
+    "available": true,
+    "received": 86,
+    "joint_count": 18,
+    "max_abs_velocity_rad_s": 0.5375,
+    "reference_file": "/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/ocs2_hexbot_legged_robot/config/command/reference.info",
+    "max_abs_position_error_rad": 0.194,
+    "missing_expected_joints": [],
+    "top_position_diffs": [
+      {
+        "joint": "femur_joint_RF",
+        "expected_rad": -0.199,
+        "actual_rad": -0.393,
+        "abs_error_rad": 0.194
+      },
+      {
+        "joint": "tarsus_joint_RF",
+        "expected_rad": 0.2159,
+        "actual_rad": 0.4022,
+        "abs_error_rad": 0.1863
+      },
+      {
+        "joint": "femur_joint_RM",
+        "expected_rad": -0.1672,
+        "actual_rad": -0.3418,
+        "abs_error_rad": 0.1746
+      },
+      {
+        "joint": "tarsus_joint_RM",
+        "expected_rad": 0.1817,
+        "actual_rad": 0.3482,
+        "abs_error_rad": 0.1665
+      },
+      {
+        "joint": "femur_joint_RR",
+        "expected_rad": -0.1308,
+        "actual_rad": -0.2751,
+        "abs_error_rad": 0.1443
+      },
+      {
+        "joint": "tarsus_joint_RR",
+        "expected_rad": 0.1414,
+        "actual_rad": 0.2803,
+        "abs_error_rad": 0.1389
+      }
+    ]
+  },
+  "thresholds": {
+    "min_base_z": null,
+    "max_abs_roll_rad": 0.35,
+    "max_abs_pitch_rad": 0.35,
+    "max_joint_speed_rad_s": 2.0,
+    "max_joint_position_error_rad": 0.45
+  }
+}

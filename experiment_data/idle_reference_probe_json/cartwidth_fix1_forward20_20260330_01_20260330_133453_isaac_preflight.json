@@ -1,0 +1,82 @@
+{
+  "clean": true,
+  "failures": [],
+  "odom": {
+    "available": true,
+    "received": 33,
+    "position_xyz_m": [
+      0.00440146186019345,
+      -0.001143875973615724,
+      -0.026059220278511545
+    ],
+    "rpy_rad": [
+      0.01871336265334353,
+      0.02837726040081083,
+      -0.0008058253948005035
+    ],
+    "linear_xyz_mps": [
+      -0.003938605077564716,
+      0.001610196428373456,
+      0.0
+    ],
+    "angular_xyz_radps": [
+      0.0,
+      0.0,
+      0.002916224766522646
+    ]
+  },
+  "joint_states": {
+    "available": true,
+    "received": 36,
+    "joint_count": 18,
+    "max_abs_velocity_rad_s": 0.5374,
+    "reference_file": "/home/u-zhuang/ros2_ws/src/ocs2_hexbot_ws/src/ocs2_hexbot_legged_robot/config/command/reference.info",
+    "max_abs_position_error_rad": 0.1936,
+    "missing_expected_joints": [],
+    "top_position_diffs": [
+      {
+        "joint": "femur_joint_RF",
+        "expected_rad": -0.199,
+        "actual_rad": -0.3926,
+        "abs_error_rad": 0.1936
+      },
+      {
+        "joint": "tarsus_joint_RF",
+        "expected_rad": 0.2159,
+        "actual_rad": 0.4039,
+        "abs_error_rad": 0.18799999999999997
+      },
+      {
+        "joint": "femur_joint_RM",
+        "expected_rad": -0.1672,
+        "actual_rad": -0.3408,
+        "abs_error_rad": 0.1736
+      },
+      {
+        "joint": "tarsus_joint_RM",
+        "expected_rad": 0.1817,
+        "actual_rad": 0.3494,
+        "abs_error_rad": 0.1677
+      },
+      {
+        "joint": "femur_joint_RR",
+        "expected_rad": -0.1308,
+        "actual_rad": -0.2738,
+        "abs_error_rad": 0.143
+      },
+      {
+        "joint": "tarsus_joint_RR",
+        "expected_rad": 0.1414,
+        "actual_rad": 0.2804,
+        "abs_error_rad": 0.13899999999999998
+      }
+    ]
+  },
+  "thresholds": {
+    "min_base_z": null,
+    "max_abs_roll_rad": 0.35,
+    "max_abs_pitch_rad": 0.35,
+    "max_joint_speed_rad_s": 2.0,
+    "max_joint_position_error_rad": 0.45
+  }
+}
